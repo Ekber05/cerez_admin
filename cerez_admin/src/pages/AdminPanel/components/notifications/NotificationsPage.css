@@ -1,0 +1,584 @@
+/* NotificationsPage.css - Yığcam filtr dizaynı ilə */
+
+.notifications-page {
+  padding: 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== PAGE HEADER ===== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 0 4px;
+}
+
+.page-header h1 {
+  font-size: 1.8rem;
+  color: #1a2639;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ===== YIĞCAM FİLTR DİZAYNI ===== */
+.filter-compact {
+  position: relative;
+  min-width: 180px;
+}
+
+.filter-main-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 40px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.filter-main-btn:hover {
+  background-color: #f8fafc;
+  border-color: #4f46e5;
+}
+
+.filter-main-btn.active {
+  border-color: #4f46e5;
+  background-color: #f0f3ff;
+}
+
+.filter-icon {
+  font-size: 1.2rem;
+}
+
+.filter-label {
+  flex: 1;
+  text-align: left;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.filter-count {
+  background: #e2e8f0;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.filter-arrow {
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+
+.filter-main-btn.active .filter-arrow {
+  transform: rotate(180deg);
+}
+
+/* Filter Dropdown */
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border: 1px solid #e2e8f0;
+  min-width: 220px;
+  z-index: 100;
+  overflow: hidden;
+  animation: filterFade 0.2s ease;
+}
+
+@keyframes filterFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.filter-option:hover {
+  background-color: #f8fafc;
+}
+
+.filter-option.active {
+  background-color: #f0f3ff;
+  border-left: 3px solid #4f46e5;
+}
+
+.filter-option-icon {
+  font-size: 1.2rem;
+  width: 28px;
+  text-align: center;
+}
+
+.filter-option-label {
+  flex: 1;
+  color: #1e293b;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.filter-option-count {
+  background: #e2e8f0;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.filter-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 4px 0;
+}
+
+/* ===== NOTIFICATIONS CONTAINER ===== */
+.notifications-container {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  background-color: #f8fafc;
+  border-radius: 20px;
+  min-height: 650px;
+  height: calc(100vh - 200px);
+  overflow: hidden;
+}
+
+/* ===== NOTIFICATIONS LIST ===== */
+.notifications-list {
+  background: white;
+  border-radius: 16px;
+  overflow-y: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  height: 100%;
+}
+
+/* Notification Card */
+.notification-card {
+  display: flex;
+  gap: 14px;
+  padding: 18px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.notification-card:last-child {
+  border-bottom: none;
+}
+
+.notification-card:hover {
+  background-color: #f8fafc;
+}
+
+.notification-card.selected {
+  background-color: #f0f9ff;
+  border-left: 4px solid #4f46e5;
+  margin-left: -2px;
+}
+
+.notification-card.unread {
+  background-color: #ffffff;
+}
+
+.notification-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  color: white;
+}
+
+.notification-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.notification-card-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Priority Badges */
+.priority-badge {
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.priority-high {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.priority-medium {
+  background-color: #fff7ed;
+  color: #c2410c;
+}
+
+.priority-low {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+/* DÜZƏLDİLDİ - -webkit-line-clamp xətası aradan qaldırıldı */
+.notification-card-message {
+  margin: 4px 0 8px;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.5;
+  max-height: 3em;
+  overflow: hidden;
+  position: relative;
+  padding-right: 20px;
+}
+
+.notification-card-message::after {
+  content: '...';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: inherit;
+  padding-left: 4px;
+}
+
+/* Daha təmiz həll üçün - JavaScript variantı istifadə edilə bilər */
+.notification-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-card-user {
+  font-size: 0.8rem;
+  color: #4f46e5;
+  font-weight: 500;
+  background: #eef2ff;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.notification-card-time {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.unread-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #4f46e5;
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  box-shadow: 0 0 0 2px white;
+}
+
+/* ===== NOTIFICATION DETAILS PANEL ===== */
+.notification-details-panel {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* No Selection State */
+.no-notifications {
+  padding: 80px 20px;
+  text-align: center;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.no-notifications-icon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.no-notifications h3 {
+  margin: 0 0 8px;
+  color: #334155;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.no-notifications p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Loading State */
+.loading-state {
+  padding: 30px 20px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.loading-state::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e9ecef;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error State */
+.error-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #ff4757;
+  font-size: 14px;
+  background: #fff5f5;
+  border-radius: 10px;
+  border: 1px solid #ffe3e3;
+  margin: 10px;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
+  font-style: italic;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.empty-state::before {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+.notification-empty::before {
+  content: '📭';
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+  .notifications-container {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: auto;
+  }
+  
+  .notifications-list {
+    max-height: 450px;
+  }
+  
+  .notification-details-panel {
+    min-height: 400px;
+  }
+  
+  .filter-compact {
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .filter-compact {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .filter-main-btn {
+    padding: 8px 14px;
+  }
+  
+  .filter-dropdown {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .notification-card {
+    padding: 14px 12px;
+  }
+  
+  .notification-card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .notification-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .notification-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .filter-option {
+    padding: 10px 12px;
+  }
+  
+  .filter-option-icon {
+    width: 24px;
+    font-size: 1rem;
+  }
+  
+  .filter-option-label {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .notifications-container {
+    gap: 16px;
+  }
+  
+  .notification-details-panel {
+    padding: 16px;
+  }
+  
+  .no-notifications-icon {
+    font-size: 4rem;
+  }
+  
+  .no-notifications h3 {
+    font-size: 1.1rem;
+  }
+  
+  .filter-main-btn {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .filter-icon {
+    font-size: 1rem;
+  }
+  
+  .filter-label {
+    font-size: 0.9rem;
+  }
+  
+  .filter-count {
+    padding: 1px 6px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .notification-card {
+    padding: 12px 10px;
+  }
+  
+  .notification-card-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  
+  .notification-card-header h4 {
+    font-size: 0.95rem;
+  }
+  
+  .notification-card-message {
+    font-size: 0.85rem;
+  }
+  
+  .unread-indicator {
+    width: 8px;
+    height: 8px;
+    top: 16px;
+    right: 12px;
+  }
+  
+  .filter-option {
+    padding: 8px 10px;
+  }
+  
+  .filter-option-icon {
+    width: 20px;
+    font-size: 0.9rem;
+  }
+}

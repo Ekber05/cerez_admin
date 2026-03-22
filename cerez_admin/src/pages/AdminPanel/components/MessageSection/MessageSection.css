@@ -1,0 +1,747 @@
+/* Bütün stillər yalnız ms- prefiksi ilə olan klasslara təsir edir */
+.ms-message-section * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ms-message-section {
+  display: flex;
+  height: 100dvh;
+  width: 100vw;
+  background-color: white;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  position: relative;
+}
+
+/* ========== SOL PANEL ========== */
+.ms-users-panel {
+  width: 350px;
+  background-color: white;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  height: 100dvh;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 20;
+}
+
+.ms-users-panel-header {
+  padding: 20px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  background-color: white;
+  z-index: 21;
+}
+
+.ms-users-panel-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #1f2937;
+}
+
+.ms-search-container {
+  position: relative;
+}
+
+.ms-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.ms-search-input {
+  width: 100%;
+  padding: 12px 12px 12px 44px;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  outline: none;
+  font-size: 15px;
+  transition: all 0.2s;
+  background-color: #f9fafb;
+}
+
+.ms-search-input:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ms-search-input::placeholder {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.ms-users-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.ms-user-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #f3f4f6;
+  width: 100%;
+}
+
+.ms-user-item:hover {
+  background-color: #f9fafb;
+}
+
+.ms-user-item-active {
+  background-color: #eff6ff;
+}
+
+.ms-user-avatar-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ms-user-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.ms-active-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  background-color: #10b981;
+  border: 2px solid white;
+  border-radius: 50%;
+  z-index: 5;
+}
+
+.ms-user-info {
+  margin-left: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ms-user-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+.ms-user-name {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.ms-message-time {
+  font-size: 12px;
+  color: #6b7280;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.ms-user-info-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.ms-last-message {
+  font-size: 14px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.ms-unread-badge {
+  background-color: #3b82f6;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+/* ========== SAĞ PANEL ========== */
+.ms-chat-panel {
+  flex: 1;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  height: 100dvh;
+  overflow: hidden;
+  min-width: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.ms-chat-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  z-index: 15;
+  min-height: 80px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.ms-mobile-back-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 28px;
+  margin-right: 16px;
+  cursor: pointer;
+  color: #3b82f6;
+  padding: 8px 12px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  font-weight: bold;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.ms-mobile-back-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.ms-chat-user-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.ms-chat-user-avatar-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ms-chat-user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.ms-chat-user-details {
+  margin-left: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ms-chat-user-name {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 18px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ms-chat-user-status {
+  font-size: 13px;
+  color: #6b7280;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ms-messages-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+}
+
+.ms-message-container {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.ms-message-wrapper {
+  display: flex;
+  gap: 10px;
+  max-width: 80%;
+}
+
+.ms-message-wrapper-me {
+  margin-left: auto;
+  flex-direction: row-reverse;
+}
+
+.ms-message-wrapper-them {
+  margin-right: auto;
+}
+
+.ms-message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.ms-message-bubble {
+  border-radius: 18px;
+  padding: 12px 16px;
+  position: relative;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.ms-message-bubble-me {
+  background-color: #3b82f6;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.ms-message-bubble-them {
+  background-color: white;
+  color: #1f2937;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.ms-message-text {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 6px;
+  word-wrap: break-word;
+}
+
+.ms-message-time-stamp {
+  font-size: 11px;
+  display: block;
+  text-align: right;
+}
+
+.ms-message-time-stamp-me {
+  color: #bfdbfe;
+}
+
+.ms-message-time-stamp-them {
+  color: #9ca3af;
+}
+
+.ms-message-input-container {
+  padding: 20px;
+  border-top: 1px solid #e5e7eb;
+  background-color: white;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
+  z-index: 15;
+  min-height: 80px;
+  width: 100%;
+  position: relative;
+}
+
+.ms-message-input {
+  flex: 1;
+  padding: 14px 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 28px;
+  outline: none;
+  font-size: 15px;
+  transition: all 0.2s;
+  background-color: #f9fafb;
+  min-width: 0;
+}
+
+.ms-message-input:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ms-message-input::placeholder {
+  color: #9ca3af;
+  font-size: 15px;
+}
+
+.ms-send-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ms-send-button:hover:not(:disabled) {
+  background-color: #2563eb;
+  transform: scale(1.05);
+}
+
+.ms-send-button:disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ms-no-chat-selected {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 16px;
+  background-color: #f9fafb;
+  height: 100%;
+  width: 100%;
+}
+
+/* ========== SCROLLBAR ========== */
+.ms-users-list::-webkit-scrollbar,
+.ms-messages-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ms-users-list::-webkit-scrollbar-track,
+.ms-messages-area::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.ms-users-list::-webkit-scrollbar-thumb,
+.ms-messages-area::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.ms-users-list::-webkit-scrollbar-thumb:hover,
+.ms-messages-area::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* ========== TABLET ========== */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .ms-users-panel {
+    width: 300px;
+  }
+
+  .ms-message-wrapper {
+    max-width: 85%;
+  }
+
+  .ms-user-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+
+  .ms-chat-user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .ms-message-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .ms-user-name {
+    max-width: 130px;
+  }
+  
+  .ms-last-message {
+    max-width: 150px;
+  }
+}
+
+/* ========== MOBIL ========== */
+@media (max-width: 768px) {
+  .ms-users-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100dvh;
+    transform: translateX(-100%);
+    border-right: none;
+    z-index: 30;
+  }
+
+  .ms-users-panel.ms-active {
+    transform: translateX(0);
+  }
+
+  .ms-chat-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100dvh;
+    transform: translateX(0);
+    z-index: 20;
+  }
+
+  .ms-chat-panel.ms-active {
+    transform: translateX(0);
+  }
+
+  .ms-chat-panel:not(.ms-active) {
+    transform: translateX(100%);
+  }
+
+  .ms-mobile-back-btn {
+    display: flex !important; /* Mütləq görünsün */
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ms-chat-header {
+    padding: 12px 16px;
+    min-height: 70px;
+    background-color: white;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex !important; /* Mütləq görünsün */
+    z-index: 25;
+  }
+
+  .ms-chat-user-info {
+    display: flex !important; /* Mütləq görünsün */
+  }
+
+  .ms-chat-user-avatar-container {
+    display: block !important; /* Mütləq görünsün */
+  }
+
+  .ms-chat-user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    display: flex !important; /* Mütləq görünsün */
+  }
+
+  .ms-chat-user-details {
+    display: block !important; /* Mütləq görünsün */
+  }
+
+  .ms-chat-user-name {
+    font-size: 16px;
+    display: block !important; /* Mütləq görünsün */
+  }
+
+  .ms-chat-user-status {
+    display: block !important; /* Mütləq görünsün */
+  }
+
+  .ms-users-panel-header {
+    padding: 16px;
+  }
+
+  .ms-users-panel-title {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+
+  .ms-search-input {
+    padding: 10px 10px 10px 40px;
+    font-size: 14px;
+  }
+
+  .ms-user-item {
+    padding: 14px;
+  }
+
+  .ms-user-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+
+  .ms-user-name {
+    font-size: 15px;
+    max-width: 180px;
+  }
+
+  .ms-last-message {
+    font-size: 13px;
+    max-width: 160px;
+  }
+
+  .ms-messages-area {
+    padding: 16px;
+    height: calc(100dvh - 140px);
+  }
+
+  .ms-message-wrapper {
+    max-width: 90%;
+  }
+
+  .ms-message-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .ms-message-bubble {
+    padding: 10px 14px;
+  }
+
+  .ms-message-text {
+    font-size: 14px;
+  }
+
+  .ms-message-time-stamp {
+    font-size: 10px;
+  }
+
+  .ms-message-input-container {
+    padding: 12px 16px;
+    min-height: 70px;
+    background-color: white;
+    border-top: 1px solid #e5e7eb;
+    z-index: 25;
+  }
+
+  .ms-message-input {
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+
+  .ms-send-button {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
+/* ========== KİÇİK MOBİL ========== */
+@media (max-width: 480px) {
+  .ms-user-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .ms-user-name {
+    max-width: 140px;
+    font-size: 14px;
+  }
+
+  .ms-last-message {
+    max-width: 120px;
+    font-size: 12px;
+  }
+  
+  .ms-message-time {
+    font-size: 10px;
+  }
+
+  .ms-message-wrapper {
+    max-width: 95%;
+  }
+
+  .ms-message-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .ms-message-bubble {
+    padding: 8px 12px;
+  }
+
+  .ms-message-text {
+    font-size: 13px;
+  }
+
+  .ms-message-input-container {
+    padding: 10px 12px;
+  }
+
+  .ms-message-input {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .ms-send-button {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+  
+  .ms-unread-badge {
+    font-size: 10px;
+    padding: 2px 5px;
+    min-width: 18px;
+  }
+  
+  .ms-chat-header {
+    min-height: 65px;
+  }
+  
+  .ms-messages-area {
+    height: calc(100dvh - 130px);
+  }
+}

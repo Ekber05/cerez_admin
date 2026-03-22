@@ -1,0 +1,405 @@
+/* NotificationDetails.css */
+
+.notification-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+}
+
+/* Seçilməyib vəziyyəti */
+.no-selection {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.no-selection-icon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.no-selection h3 {
+  margin: 0 0 8px;
+  color: #334155;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.no-selection p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Header */
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.details-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.details-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: white;
+}
+
+.details-title h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.delete-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+  transform: scale(1.05);
+}
+
+/* Meta məlumatlar */
+.details-meta {
+  background-color: #f8fafc;
+  padding: 20px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.meta-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.meta-value {
+  font-size: 1rem;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.message-text {
+  color: #4f46e5;
+  font-style: italic;
+}
+
+/* Prioritet badge */
+.priority-badge-large {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: #e2e8f0;
+  color: #334155;
+}
+
+.priority-high {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.priority-medium {
+  background-color: #fff7ed;
+  color: #c2410c;
+}
+
+.priority-low {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Kontent */
+.details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.details-content h3 {
+  margin: 0 0 16px;
+  font-size: 1.2rem;
+  color: #1e293b;
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.details-section {
+  background-color: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.details-section h4 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+/* Info grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.info-item label {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.info-item span {
+  font-size: 1rem;
+  color: #1e293b;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.info-item .amount {
+  color: #10b981;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.info-item .subject {
+  font-weight: 500;
+  color: #4f46e5;
+}
+
+/* Məhsul cədvəli */
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.products-table th {
+  text-align: left;
+  padding: 12px 8px;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.products-table td {
+  padding: 12px 8px;
+  font-size: 0.95rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.products-table tfoot tr {
+  background-color: #f8fafc;
+  font-weight: 600;
+}
+
+.total-label {
+  text-align: right;
+  color: #1e293b;
+}
+
+.total-value {
+  color: #10b981;
+  font-size: 1.1rem;
+}
+
+/* Mesaj mətni */
+.message-content {
+  background-color: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+}
+
+.message-content p {
+  margin: 8px 0 0;
+  line-height: 1.6;
+  color: #334155;
+  white-space: pre-wrap;
+  font-size: 1rem;
+}
+
+/* Əməliyyat düymələri */
+.details-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid #f1f5f9;
+}
+
+.action-button {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  flex: 1;
+}
+
+.action-button.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.action-button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.action-button.secondary {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  flex: 0.5;
+}
+
+.action-button.secondary:hover {
+  background-color: #fee2e2;
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .meta-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .details-actions {
+    flex-direction: column;
+  }
+  
+  .action-button.secondary {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .details-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .delete-btn {
+    align-self: flex-end;
+  }
+  
+  .details-section {
+    padding: 16px;
+  }
+  
+  .products-table {
+    font-size: 0.9rem;
+  }
+  
+  .products-table th,
+  .products-table td {
+    padding: 8px 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .details-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.4rem;
+  }
+  
+  .details-title h2 {
+    font-size: 1.2rem;
+  }
+  
+  .info-item span {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+  }
+  
+  .products-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

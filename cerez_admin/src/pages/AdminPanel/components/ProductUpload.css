@@ -1,0 +1,785 @@
+/* ProductUpload.css - SADƏ AĞ PƏNCƏRƏ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.productupload-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 30px 20px;
+  position: relative;
+}
+
+.productupload-container {
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.productupload-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 25px;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.productupload-card {
+  background: white;
+  border-radius: 24px;
+  padding: 35px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  border: 1px solid #e2e8f0;
+}
+
+.productupload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.productupload-header h2 {
+  font-size: 24px;
+  color: #1a202c;
+  font-weight: 600;
+}
+
+.productupload-badge {
+  background: #edf2f7;
+  color: #4a5568;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  border: 1px solid #cbd5e0;
+}
+
+/* ===== SADƏ AĞ BİLDİRİŞ PƏNCƏRƏSİ ===== */
+.simple-notification {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  min-width: 300px;
+  max-width: 400px;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  z-index: 9999;
+  animation: slideIn 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.simple-notification.success {
+  border-left: 4px solid #28a745;
+}
+
+.simple-notification.error {
+  border-left: 4px solid #dc3545;
+}
+
+.simple-notification.info {
+  border-left: 4px solid #17a2b8;
+}
+
+.simple-notification .notification-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.simple-notification .notification-message {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a202c;
+  line-height: 1.5;
+}
+
+.simple-notification .notification-close {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #f7fafc;
+  border: none;
+  color: #718096;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.simple-notification .notification-close:hover {
+  background: #edf2f7;
+  color: #dc3545;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Şəkil yükləmə sahəsi */
+.productupload-area {
+  border: 2px dashed #cbd5e0;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 30px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  min-height: 200px;
+  width: 100%;
+}
+
+.productupload-area:hover {
+  border-color: #667eea;
+  background: #f0f3ff;
+}
+
+.productupload-area.drag-active {
+  border-color: #48bb78;
+  background: #f0fff4;
+  transform: scale(1.02);
+  box-shadow: 0 10px 30px rgba(72, 187, 120, 0.2);
+}
+
+.productupload-area.has-images {
+  border-style: solid;
+  border-color: #48bb78;
+  background: white;
+}
+
+.productupload-file-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* Upload prompt */
+.productupload-upload-prompt {
+  text-align: center;
+  width: 100%;
+}
+
+.productupload-icon {
+  font-size: 56px;
+  margin-bottom: 15px;
+  opacity: 0.8;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.productupload-main-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: #2d3748;
+  margin-bottom: 8px;
+}
+
+.productupload-hint {
+  color: #718096;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Preview grid */
+.productupload-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 15px;
+  width: 100%;
+}
+
+.productupload-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  animation: fadeIn 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.productupload-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.productupload-preview-item:hover img {
+  transform: scale(1.1);
+}
+
+.productupload-remove-image {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #e53e3e;
+  color: #e53e3e;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 3;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.productupload-remove-image:hover:not(:disabled) {
+  background: #e53e3e;
+  color: white;
+  transform: scale(1.1);
+}
+
+.productupload-remove-image:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.productupload-image-order {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(2px);
+}
+
+.productupload-add-more {
+  aspect-ratio: 1;
+  border: 2px dashed #cbd5e0;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #f7fafc;
+  width: 100%;
+}
+
+.productupload-add-more:hover {
+  border-color: #667eea;
+  background: #f0f3ff;
+  transform: scale(1.05);
+}
+
+.productupload-add-more span {
+  font-size: 32px;
+  color: #667eea;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.productupload-add-more small {
+  color: #4a5568;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* SELECT INPUT */
+.productupload-select {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid #cbd5e0;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  background: white;
+  color: #1a202c;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  cursor: pointer;
+}
+
+.productupload-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.productupload-select:hover {
+  border-color: #667eea;
+}
+
+.productupload-select option {
+  color: #1a202c;
+  background: white;
+  padding: 10px;
+}
+
+/* Form elementləri */
+.productupload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+}
+
+.productupload-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+}
+
+.productupload-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.productupload-form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.required {
+  color: #e53e3e;
+  margin-left: 4px;
+}
+
+.optional {
+  color: #718096;
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.productupload-form-group input,
+.productupload-form-group textarea,
+.productupload-form-group select {
+  padding: 14px 18px;
+  border: 1px solid #cbd5e0;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  background: white;
+  width: 100%;
+  color: #1a202c;
+}
+
+.productupload-form-group input::placeholder,
+.productupload-form-group textarea::placeholder,
+.productupload-form-group select::placeholder {
+  color: #a0aec0;
+}
+
+.productupload-form-group input:focus,
+.productupload-form-group textarea:focus,
+.productupload-form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.productupload-form-group input:hover:not(:disabled),
+.productupload-form-group textarea:hover:not(:disabled),
+.productupload-form-group select:hover:not(:disabled) {
+  border-color: #667eea;
+}
+
+.productupload-form-group input:disabled,
+.productupload-form-group textarea:disabled,
+.productupload-form-group select:disabled {
+  background: #f7fafc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.productupload-form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Form actions */
+.productupload-form-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.productupload-btn-primary,
+.productupload-btn-secondary {
+  padding: 14px 36px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border: none;
+}
+
+.productupload-btn-primary {
+  background: #667eea;
+  color: white;
+}
+
+.productupload-btn-primary:hover:not(:disabled) {
+  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.productupload-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.productupload-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.productupload-btn-primary.loading {
+  position: relative;
+  color: transparent;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+  position: absolute;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.productupload-btn-secondary {
+  background: white;
+  color: #4a5568;
+  border: 1px solid #cbd5e0;
+}
+
+.productupload-btn-secondary:hover:not(:disabled) {
+  background: #f7fafc;
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.productupload-btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.productupload-btn-secondary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+  .productupload-card {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .productupload-wrapper {
+    padding: 20px 16px;
+  }
+
+  .productupload-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+  
+  .productupload-card {
+    padding: 24px;
+  }
+  
+  .productupload-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .productupload-header h2 {
+    font-size: 22px;
+  }
+  
+  .productupload-area {
+    padding: 20px;
+  }
+  
+  .productupload-form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .productupload-form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .productupload-btn-primary,
+  .productupload-btn-secondary {
+    width: 100%;
+    min-width: auto;
+    padding: 14px 24px;
+  }
+  
+  .productupload-preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 12px;
+  }
+  
+  .productupload-icon {
+    font-size: 48px;
+  }
+  
+  .productupload-main-text {
+    font-size: 16px;
+    color: #2d3748;
+  }
+
+  /* Bildiriş mobil görünüş */
+  .simple-notification {
+    top: 20px;
+    right: 20px;
+    left: 20px;
+    min-width: auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .productupload-wrapper {
+    padding: 16px 12px;
+  }
+
+  .productupload-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+    color: #1a202c;
+  }
+  
+  .productupload-card {
+    padding: 20px;
+  }
+  
+  .productupload-header h2 {
+    font-size: 20px;
+    color: #1a202c;
+  }
+  
+  .productupload-badge {
+    font-size: 12px;
+    padding: 5px 12px;
+    color: #4a5568;
+  }
+  
+  .productupload-area {
+    padding: 16px;
+    min-height: 160px;
+  }
+  
+  .productupload-preview-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .productupload-preview-item {
+    border-radius: 8px;
+  }
+  
+  .productupload-remove-image {
+    width: 22px;
+    height: 22px;
+    font-size: 18px;
+  }
+  
+  .productupload-image-order {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+  
+  .productupload-add-more span {
+    font-size: 28px;
+    color: #667eea;
+  }
+  
+  .productupload-add-more small {
+    font-size: 10px;
+    color: #4a5568;
+  }
+  
+  .productupload-form-group input,
+  .productupload-form-group textarea,
+  .productupload-form-group select {
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #1a202c;
+  }
+  
+  .productupload-form-group label {
+    font-size: 13px;
+    color: #2d3748;
+  }
+  
+  .productupload-icon {
+    font-size: 42px;
+  }
+  
+  .productupload-main-text {
+    font-size: 15px;
+    color: #2d3748;
+  }
+  
+  .productupload-hint {
+    color: #718096;
+  }
+
+  .simple-notification {
+    top: 15px;
+    right: 15px;
+    left: 15px;
+    padding: 14px 20px;
+  }
+  
+  .simple-notification .notification-message {
+    font-size: 14px;
+  }
+}
+
+/* Çox kiçik ekranlar üçün */
+@media (max-width: 375px) {
+  .productupload-wrapper {
+    padding: 12px 10px;
+  }
+  
+  .productupload-card {
+    padding: 16px;
+  }
+  
+  .productupload-preview-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .simple-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    padding: 12px 16px;
+  }
+  
+  .simple-notification .notification-message {
+    font-size: 13px;
+  }
+}
+
+/* Touch cihazlar üçün optimizasiya */
+@media (hover: none) {
+  .productupload-btn-primary:hover,
+  .productupload-btn-secondary:hover,
+  .productupload-add-more:hover,
+  .productupload-area:hover {
+    transform: none;
+  }
+  
+  .productupload-preview-item:hover img {
+    transform: none;
+  }
+}
+
+/* Landscape rejimi üçün */
+@media (max-height: 600px) and (orientation: landscape) {
+  .productupload-wrapper {
+    padding: 15px;
+  }
+  
+  .productupload-preview-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .simple-notification {
+    top: 10px;
+    right: 10px;
+    max-width: 350px;
+  }
+}
+
+/* Yüksək DPI ekranlar üçün */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .productupload-card {
+    border-width: 0.5px;
+  }
+}
