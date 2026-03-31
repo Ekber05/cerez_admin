@@ -1,17 +1,19 @@
+// src/components/AdminPanel/components/AllOrders.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './AllOrders.css';
+import Pagination from './Pagination';
 import { useOrders } from '../../../hooks/useOrders';
 import { 
   FiSearch, FiFilter, FiDownload, FiPrinter, 
-  FiEye, FiEdit, FiTrash2, FiChevronLeft, 
-  FiChevronRight, FiChevronsLeft, FiChevronsRight,
+  FiEye, FiEdit, FiTrash2,
   FiRefreshCw, FiX, FiCheck, FiClock, FiAlertCircle,
-  FiCalendar, FiDollarSign, FiUser, FiPhone,
-  FiChevronDown, FiArrowLeft, FiArrowRight, 
-  FiSkipBack, FiSkipForward
+  FiCalendar, FiDollarSign, FiChevronDown
 } from 'react-icons/fi';
 
 const AllOrders = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   // ========== STATE ==========
   const { 
     orders, 
@@ -46,7 +48,51 @@ const AllOrders = () => {
     totalAmount: 0
   });
 
-  const ordersPerPage = 10;
+  // Hər səhifədə göstəriləcək sifariş sayı - 20 olaraq dəyişdirildi
+  const ordersPerPage = 20;
+
+  // URL-dən filter parametrlərini oxu (PAGE oxunmur - Pagination özü oxuyur)
+  useEffect(() => {
+    const statusFromUrl = searchParams.get('status');
+    if (statusFromUrl && ['completed', 'pending', 'processing', 'cancelled'].includes(statusFromUrl)) {
+      setFilterStatus(statusFromUrl);
+    }
+    
+    const dateFromUrl = searchParams.get('date');
+    if (dateFromUrl && ['today', 'week', 'month'].includes(dateFromUrl)) {
+      setDateFilter(dateFromUrl);
+    }
+    
+    const amountFromUrl = searchParams.get('amount');
+    if (amountFromUrl && ['low', 'medium', 'high'].includes(amountFromUrl)) {
+      setAmountFilter(amountFromUrl);
+    }
+    
+    const searchFromUrl = searchParams.get('search');
+    if (searchFromUrl) {
+      setSearchTerm(searchFromUrl);
+    }
+  }, []);
+
+  // URL parametrlərini yenilə (YALNIZ FILTERLƏR ÜÇÜN - PAGE YOX)
+  const updateUrlParams = (status, date, amount, search) => {
+    const newParams = new URLSearchParams();
+    
+    if (status && status !== 'all') {
+      newParams.set('status', status);
+    }
+    if (date && date !== 'all') {
+      newParams.set('date', date);
+    }
+    if (amount && amount !== 'all') {
+      newParams.set('amount', amount);
+    }
+    if (search && search.trim() !== '') {
+      newParams.set('search', search);
+    }
+    
+    setSearchParams(newParams, { replace: false });
+  };
 
   // ========== DROPDOWN ==========
   useEffect(() => {
@@ -86,11 +132,15 @@ const AllOrders = () => {
     let filtered = [...orders];
     
     if (searchTerm.trim() !== '') {
-      filtered = filtered.filter(order => 
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.phone.includes(searchTerm)
-      );
+      const term = searchTerm.trim().toLowerCase();
+      filtered = filtered.filter(order => {
+        const idMatch = order.id.toLowerCase().startsWith(term);
+        const customerMatch = order.customer.toLowerCase().startsWith(term);
+        let cleanPhone = order.phone.replace(/^\+994/, '').replace(/\s/g, '');
+        const cleanSearchTerm = term.replace(/\s/g, '');
+        const phoneMatch = cleanPhone.startsWith(cleanSearchTerm);
+        return idMatch || customerMatch || phoneMatch;
+      });
     }
     
     if (filterStatus !== 'all') {
@@ -141,11 +191,43 @@ const AllOrders = () => {
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
   const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
 
+  // ========== FILTER FUNKSİYALARI ==========
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
     setCurrentPage(1);
+    updateUrlParams(filterStatus, dateFilter, amountFilter, value);
   };
   
+  const handleStatusFilterChange = (status) => {
+    setFilterStatus(status);
+    setCurrentPage(1);
+    setOpenDropdown(null);
+    updateUrlParams(status, dateFilter, amountFilter, searchTerm);
+  };
+  
+  const handleDateFilterChange = (date) => {
+    setDateFilter(date);
+    setCurrentPage(1);
+    setOpenDropdown(null);
+    updateUrlParams(filterStatus, date, amountFilter, searchTerm);
+  };
+  
+  const handleAmountFilterChange = (amount) => {
+    setAmountFilter(amount);
+    setCurrentPage(1);
+    setOpenDropdown(null);
+    updateUrlParams(filterStatus, dateFilter, amount, searchTerm);
+  };
+  
+  // ========== SƏHİFƏ DƏYİŞMƏ - SADƏCƏ STATE YENİLƏYİR ==========
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // URL artıq Pagination komponentində yenilənir
+    // Burada SADƏCƏ state-i dəyişdiririk
+  };
+  
+  // ========== MODAL FUNKSİYALARI ==========
   const handleViewOrder = (order) => {
     setViewModal({ show: true, order });
   };
@@ -213,11 +295,12 @@ const AllOrders = () => {
     setDeleteModal({ show: false, orderId: null });
   };
 
+  // ========== EXPORT / PRINT / REFRESH / CLEAR ==========
   const handleExport = () => {
     const exportData = filteredOrders.map(order => ({
       'Sifariş ID': order.id,
       'Müştəri': order.customer,
-      'Telefon': order.phone,
+      'Telefon': order.phone.replace(/^\+994/, ''),
       'Tarix': order.date,
       'Saat': order.time,
       'Məbləğ (AZN)': order.amount.toFixed(2),
@@ -251,16 +334,16 @@ const AllOrders = () => {
     const printWindow = window.open('', '_blank');
     
     const tableRows = filteredOrders.map(order => `
-       <tr>
-        <td>${order.id}</td>
-        <td>${order.customer}</td>
-        <td>${order.phone}</td>
-        <td>${order.date}</td>
-        <td>₼${order.amount.toFixed(2)}</td>
-        <td>${order.status === 'completed' ? 'Tamamlandı' :
+        <tr>
+           earlier${order.id}</td>
+           <td>${order.customer}</td>
+           <td>${order.phone.replace(/^\+994/, '')}</td>
+           <td>${order.date}</td>
+           <td>₼${order.amount.toFixed(2)}</td>
+           <td>${order.status === 'completed' ? 'Tamamlandı' :
                order.status === 'pending' ? 'Gözləyir' :
                order.status === 'processing' ? 'Hazırlanır' : 'Ləğv edildi'}</td>
-       </tr>
+         </tr>
     `).join('');
     
     printWindow.document.write(`
@@ -315,6 +398,7 @@ const AllOrders = () => {
     setFilterStatus('all');
     setDateFilter('all');
     setAmountFilter('all');
+    setSearchParams({}, { replace: true });
     refreshOrders();
   };
 
@@ -324,8 +408,10 @@ const AllOrders = () => {
     setDateFilter('all');
     setAmountFilter('all');
     setCurrentPage(1);
+    setSearchParams({}, { replace: true });
   };
 
+  // ========== STATUS BADGE ==========
   const getStatusBadge = (status) => {
     switch(status) {
       case 'completed':
@@ -341,10 +427,7 @@ const AllOrders = () => {
     }
   };
 
-  const goToPage = (page) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-  };
-
+  // ========== LABEL FUNKSİYALARI ==========
   const getStatusLabel = (status) => {
     switch(status) {
       case 'all': return 'Bütün statuslar';
@@ -374,41 +457,6 @@ const AllOrders = () => {
       case 'high': return '100 AZN -dən çox';
       default: return 'Məbləğ';
     }
-  };
-
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPagesToShow = 5;
-    
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pageNumbers.push(i);
-        }
-        pageNumbers.push('...');
-        pageNumbers.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pageNumbers.push(1);
-        pageNumbers.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pageNumbers.push(i);
-        }
-      } else {
-        pageNumbers.push(1);
-        pageNumbers.push('...');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pageNumbers.push(i);
-        }
-        pageNumbers.push('...');
-        pageNumbers.push(totalPages);
-      }
-    }
-    
-    return pageNumbers;
   };
 
   if (loading) {
@@ -460,13 +508,16 @@ const AllOrders = () => {
           <FiSearch className="ao-search-icon" />
           <input
             type="text"
-            placeholder="Axtarış (ID, müştəri, telefon...)"
+            placeholder="Axtarış (ID, müştəri, telefon...) - Başdan uyğunluq"
             value={searchTerm}
             onChange={handleSearch}
             className="ao-search-input"
           />
           {searchTerm && (
-            <FiX className="ao-clear-search" onClick={() => setSearchTerm('')} />
+            <FiX className="ao-clear-search" onClick={() => {
+              setSearchTerm('');
+              updateUrlParams(filterStatus, dateFilter, amountFilter, '');
+            }} />
           )}
         </div>
 
@@ -484,31 +535,31 @@ const AllOrders = () => {
               <div className="ao-dropdown-menu">
                 <div 
                   className={`ao-dropdown-item ${filterStatus === 'all' ? 'ao-selected' : ''}`}
-                  onClick={() => { setFilterStatus('all'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleStatusFilterChange('all')}
                 >
                   Bütün statuslar
                 </div>
                 <div 
                   className={`ao-dropdown-item ${filterStatus === 'completed' ? 'ao-selected' : ''}`}
-                  onClick={() => { setFilterStatus('completed'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleStatusFilterChange('completed')}
                 >
                   Tamamlanmış
                 </div>
                 <div 
                   className={`ao-dropdown-item ${filterStatus === 'processing' ? 'ao-selected' : ''}`}
-                  onClick={() => { setFilterStatus('processing'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleStatusFilterChange('processing')}
                 >
                   Hazırlanır
                 </div>
                 <div 
                   className={`ao-dropdown-item ${filterStatus === 'pending' ? 'ao-selected' : ''}`}
-                  onClick={() => { setFilterStatus('pending'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleStatusFilterChange('pending')}
                 >
                   Gözləyən
                 </div>
                 <div 
                   className={`ao-dropdown-item ${filterStatus === 'cancelled' ? 'ao-selected' : ''}`}
-                  onClick={() => { setFilterStatus('cancelled'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleStatusFilterChange('cancelled')}
                 >
                   Ləğv edilmiş
                 </div>
@@ -529,25 +580,25 @@ const AllOrders = () => {
               <div className="ao-dropdown-menu">
                 <div 
                   className={`ao-dropdown-item ${dateFilter === 'all' ? 'ao-selected' : ''}`}
-                  onClick={() => { setDateFilter('all'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleDateFilterChange('all')}
                 >
                   Bütün tarixlər
                 </div>
                 <div 
                   className={`ao-dropdown-item ${dateFilter === 'today' ? 'ao-selected' : ''}`}
-                  onClick={() => { setDateFilter('today'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleDateFilterChange('today')}
                 >
                   Bugün
                 </div>
                 <div 
                   className={`ao-dropdown-item ${dateFilter === 'week' ? 'ao-selected' : ''}`}
-                  onClick={() => { setDateFilter('week'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleDateFilterChange('week')}
                 >
                   Son 7 gün
                 </div>
                 <div 
                   className={`ao-dropdown-item ${dateFilter === 'month' ? 'ao-selected' : ''}`}
-                  onClick={() => { setDateFilter('month'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleDateFilterChange('month')}
                 >
                   Son 30 gün
                 </div>
@@ -568,25 +619,25 @@ const AllOrders = () => {
               <div className="ao-dropdown-menu">
                 <div 
                   className={`ao-dropdown-item ${amountFilter === 'all' ? 'ao-selected' : ''}`}
-                  onClick={() => { setAmountFilter('all'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleAmountFilterChange('all')}
                 >
                   Bütün məbləğlər
                 </div>
                 <div 
                   className={`ao-dropdown-item ${amountFilter === 'low' ? 'ao-selected' : ''}`}
-                  onClick={() => { setAmountFilter('low'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleAmountFilterChange('low')}
                 >
                   50 AZN -dən az
                 </div>
                 <div 
                   className={`ao-dropdown-item ${amountFilter === 'medium' ? 'ao-selected' : ''}`}
-                  onClick={() => { setAmountFilter('medium'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleAmountFilterChange('medium')}
                 >
                   50 - 100 AZN
                 </div>
                 <div 
                   className={`ao-dropdown-item ${amountFilter === 'high' ? 'ao-selected' : ''}`}
-                  onClick={() => { setAmountFilter('high'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleAmountFilterChange('high')}
                 >
                   100 AZN -dən çox
                 </div>
@@ -606,7 +657,10 @@ const AllOrders = () => {
             {searchTerm && (
               <span className="ao-compact-active-filter">
                 "{searchTerm}"
-                <FiX onClick={() => setSearchTerm('')} />
+                <FiX onClick={() => {
+                  setSearchTerm('');
+                  updateUrlParams(filterStatus, dateFilter, amountFilter, '');
+                }} />
               </span>
             )}
             {filterStatus !== 'all' && (
@@ -614,21 +668,21 @@ const AllOrders = () => {
                 {filterStatus === 'completed' ? 'Tamamlanmış' :
                  filterStatus === 'pending' ? 'Gözləyən' :
                  filterStatus === 'processing' ? 'Hazırlanır' : 'Ləğv edilmiş'}
-                <FiX onClick={() => setFilterStatus('all')} />
+                <FiX onClick={() => handleStatusFilterChange('all')} />
               </span>
             )}
             {dateFilter !== 'all' && (
               <span className="ao-compact-active-filter">
                 {dateFilter === 'today' ? 'Bugün' :
                  dateFilter === 'week' ? 'Son 7 gün' : 'Son 30 gün'}
-                <FiX onClick={() => setDateFilter('all')} />
+                <FiX onClick={() => handleDateFilterChange('all')} />
               </span>
             )}
             {amountFilter !== 'all' && (
               <span className="ao-compact-active-filter">
                 {amountFilter === 'low' ? '< 50₼' :
                  amountFilter === 'medium' ? '50-100₼' : '> 100₼'}
-                <FiX onClick={() => setAmountFilter('all')} />
+                <FiX onClick={() => handleAmountFilterChange('all')} />
               </span>
             )}
           </div>
@@ -666,6 +720,9 @@ const AllOrders = () => {
       {/* Nəticə sayı */}
       <div className="ao-results-info">
         <p>Cəmi <strong>{filteredOrders.length}</strong> sifariş tapıldı</p>
+        {filteredOrders.length > 0 && (
+          <p className="ao-results-detail">Səhifə: {currentPage} / {totalPages}</p>
+        )}
       </div>
 
       {/* Sifarişlər cədvəli */}
@@ -693,7 +750,7 @@ const AllOrders = () => {
                 <tr key={order.id}>
                   <td className="ao-order-id">{order.id}</td>
                   <td className="ao-customer-name">{order.customer}</td>
-                  <td className="ao-customer-phone">{order.phone}</td>
+                  <td className="ao-customer-phone">{order.phone.replace(/^\+994/, '')}</td>
                   <td>
                     <div className="ao-date-info">
                       <span>{order.date}</span>
@@ -741,62 +798,15 @@ const AllOrders = () => {
         )}
       </div>
 
-      {/* Pagination */}
+      {/* Vahid Pagination Komponenti */}
       {totalPages > 1 && (
-        <div className="ao-pagination">
-          <button 
-            onClick={() => goToPage(1)} 
-            disabled={currentPage === 1}
-            className="ao-pagination-btn ao-first-page"
-            title="İlk səhifə"
-          >
-            <FiChevronsLeft />
-            <span className="ao-btn-text">İlk</span>
-          </button>
-          <button 
-            onClick={() => goToPage(currentPage - 1)} 
-            disabled={currentPage === 1}
-            className="ao-pagination-btn ao-prev-page"
-            title="Əvvəlki səhifə"
-          >
-            <FiChevronLeft />
-            <span className="ao-btn-text">Əvvəl</span>
-          </button>
-          
-          {getPageNumbers().map((page, index) => (
-            page === '...' ? (
-              <span key={`dots-${index}`} className="ao-pagination-dots">...</span>
-            ) : (
-              <button
-                key={page}
-                onClick={() => goToPage(page)}
-                className={`ao-pagination-btn ao-page-number ${currentPage === page ? 'ao-active' : ''}`}
-                title={`Səhifə ${page}`}
-              >
-                {page}
-              </button>
-            )
-          ))}
-          
-          <button 
-            onClick={() => goToPage(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-            className="ao-pagination-btn ao-next-page"
-            title="Sonrakı səhifə"
-          >
-            <span className="ao-btn-text">Sonra</span>
-            <FiChevronRight />
-          </button>
-          <button 
-            onClick={() => goToPage(totalPages)} 
-            disabled={currentPage === totalPages}
-            className="ao-pagination-btn ao-last-page"
-            title="Son səhifə"
-          >
-            <span className="ao-btn-text">Son</span>
-            <FiChevronsRight />
-          </button>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          pageParamName="page"
+          scrollToTop={true}
+        />
       )}
 
       {/* ========== MODALLAR ========== */}
@@ -820,7 +830,7 @@ const AllOrders = () => {
               </div>
               <div className="ao-detail-row">
                 <span className="ao-detail-label">Telefon:</span>
-                <span className="ao-detail-value">{viewModal.order.phone}</span>
+                <span className="ao-detail-value">{viewModal.order.phone.replace(/^\+994/, '')}</span>
               </div>
               <div className="ao-detail-row">
                 <span className="ao-detail-label">Tarix:</span>

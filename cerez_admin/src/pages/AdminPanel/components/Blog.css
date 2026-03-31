@@ -1,4 +1,4 @@
-/* Blog.css - Tam CSS (Fərdiləşdirilmiş Class Adları ilə) */
+/* Blog.css - Təmizlənmiş CSS (Məqalə tipi və teqlər silinib, Pagination çıxarılıb) */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
 /* ========== BUTTON OUTLINE LƏĞVİ ========== */
@@ -236,6 +236,27 @@ input, textarea, select {
   gap: 8px;
 }
 
+/* ========== RESULTS INFO - BLOG ========== */
+.blog-results-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #6c757d;
+  padding: 10px 0;
+}
+
+.blog-results-info strong {
+  color: #667eea;
+  font-size: 16px;
+}
+
+.blog-results-detail {
+  color: #6c757d;
+  font-size: 13px;
+}
+
 /* ========== NO RESULTS ========== */
 .blog-no-results {
   text-align: center;
@@ -286,6 +307,7 @@ input, textarea, select {
 .blog-articles-grid {
   display: grid;
   gap: 25px;
+  margin-bottom: 30px;
 }
 
 .blog-articles-grid--card {
@@ -337,19 +359,6 @@ input, textarea, select {
   padding: 20px;
 }
 
-.blog-articles-grid--list .blog-article-type-list {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #667eea;
-  background: #f0f4f8;
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .blog-articles-grid--list .blog-article-header {
   margin-bottom: 8px;
 }
@@ -369,10 +378,6 @@ input, textarea, select {
   margin-bottom: 15px;
 }
 
-.blog-articles-grid--list .blog-article-tags {
-  margin-bottom: 15px;
-}
-
 .blog-articles-grid--list .blog-article-actions {
   border-top: 1px solid #edf2f7;
   padding-top: 15px;
@@ -380,33 +385,11 @@ input, textarea, select {
 
 /* ========== KART GÖRÜNÜŞÜ STILLƏRI ========== */
 .blog-article-image {
-  height: 160px;
+  height: 200px;
   background-size: cover;
   background-position: center;
   position: relative;
   background-color: #f1f3f5;
-}
-
-.blog-article-type-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #667eea;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.blog-article-type-header {
-  padding: 12px 16px 0;
-  font-size: 13px;
-  font-weight: 600;
-  color: #667eea;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .blog-article-content {
@@ -478,37 +461,7 @@ input, textarea, select {
   color: #667eea;
 }
 
-.blog-article-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-.blog-tag-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  background: #f0f4f8;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #4a5568;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.blog-tag-link:hover {
-  background: #e2e8f0;
-  color: #667eea;
-}
-
-.blog-tag-link i {
-  font-size: 10px;
-  color: #667eea;
-}
-
-/* ========== ARTICLE ACTIONS BUTTONS (Campaigns-dəki kimi rənglər) ========== */
+/* ========== ARTICLE ACTIONS BUTTONS ========== */
 .blog-article-actions {
   display: flex;
   gap: 8px;
@@ -531,7 +484,6 @@ input, textarea, select {
   transition: all 0.3s ease;
 }
 
-/* Bax butonu - Mavi (edit-btn rəngi) */
 .blog-action-btn--view {
   background: #e3f2fd;
   color: #1976d2;
@@ -542,7 +494,6 @@ input, textarea, select {
   transform: translateY(-2px);
 }
 
-/* Redaktə butonu - Sarı/Narıncı (status-btn rəngi) */
 .blog-action-btn--edit {
   background: #fff3e0;
   color: #f57c00;
@@ -553,7 +504,6 @@ input, textarea, select {
   transform: translateY(-2px);
 }
 
-/* Sil butonu - Qırmızı (delete-btn rəngi) */
 .blog-action-btn--delete {
   background: #ffebee;
   color: #d32f2f;
@@ -705,19 +655,6 @@ input, textarea, select {
   width: 16px;
 }
 
-.blog-view-modal-type-badge {
-  display: inline-block;
-  font-size: 13px;
-  font-weight: 600;
-  color: #667eea;
-  background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
-  padding: 6px 18px;
-  border-radius: 30px;
-  margin-bottom: 20px;
-  border: 1px solid #667eea30;
-  letter-spacing: 0.3px;
-}
-
 .blog-view-modal-description {
   background: #f8fafc;
   padding: 20px;
@@ -772,43 +709,6 @@ input, textarea, select {
   margin-bottom: 0;
 }
 
-.blog-view-modal-tags {
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 12px;
-  margin-top: 20px;
-}
-
-.blog-view-modal-tags h4 {
-  font-size: 15px;
-  font-weight: 600;
-  color: #2d3748;
-  margin: 0 0 15px 0;
-}
-
-.blog-tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.blog-view-tag {
-  background: white;
-  padding: 6px 15px;
-  border-radius: 30px;
-  font-size: 13px;
-  color: #4a5568;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
-}
-
-.blog-view-tag:hover {
-  border-color: #667eea;
-  color: #667eea;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.1);
-}
-
 .blog-view-modal-footer {
   padding: 20px 30px;
   border-top: 1px solid #edf2f7;
@@ -819,26 +719,6 @@ input, textarea, select {
   bottom: 0;
   z-index: 10;
   border-radius: 0 0 24px 24px;
-}
-
-.blog-cancel-btn {
-  background: #f7fafc;
-  color: #4a5568;
-  border: 2px solid #e2e8f0;
-  padding: 12px 28px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.blog-cancel-btn:hover {
-  background: #edf2f7;
-  border-color: #cbd5e0;
 }
 
 /* ========== BLOG MODAL ========== */
@@ -1199,173 +1079,6 @@ input, textarea, select {
   margin-left: 8px;
 }
 
-/* ========== TAG SELECTION STYLES ========== */
-.blog-selection-section {
-  margin-top: 8px;
-  animation: blogFadeIn 0.3s ease;
-  background: #fafbfc;
-  border-radius: 16px;
-  padding: 16px;
-  border: 1px solid #edf2f7;
-}
-
-.blog-selection-section label {
-  color: #000000;
-  font-weight: 600;
-  margin-bottom: 10px;
-  display: block;
-}
-
-.blog-tag-input-group {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.blog-tag-input {
-  flex: 1;
-  padding: 10px 14px;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  background: white;
-  color: #000000;
-}
-
-.blog-tag-input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.blog-tag-input::placeholder {
-  color: #4a5568;
-  font-size: 13px;
-  opacity: 0.8;
-}
-
-.blog-add-tag-btn {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.blog-add-tag-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.blog-add-tag-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: #cbd5e0;
-}
-
-.blog-add-tag-btn i {
-  font-size: 14px;
-  color: white;
-}
-
-.blog-selected-tags {
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
-  border: 1px solid #e2e8f0;
-  margin-top: 10px;
-}
-
-.blog-selected-tags-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  color: #000000;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.blog-selected-tags-title i {
-  color: #667eea;
-  font-size: 16px;
-}
-
-.blog-tags-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.blog-tag-item {
-  display: inline-flex;
-  align-items: center;
-  background: #f0f4f8;
-  border: 1px solid #d0d9e8;
-  border-radius: 30px;
-  padding: 5px 5px 5px 14px;
-  gap: 6px;
-  transition: all 0.2s ease;
-  animation: blogTagAppear 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-@keyframes blogTagAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.blog-tag-item:hover {
-  border-color: #667eea;
-  background: #e8edf5;
-  box-shadow: 0 2px 5px rgba(102, 126, 234, 0.2);
-}
-
-.blog-tag-name {
-  font-size: 13px;
-  color: #000000;
-  font-weight: 500;
-}
-
-.blog-remove-tag-btn {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: #4a5568;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.blog-remove-tag-btn:hover {
-  background: #fed7d7;
-  color: #e53e3e;
-}
-
-.blog-remove-tag-btn i {
-  font-size: 12px;
-  color: inherit;
-}
-
 /* ========== MODAL FOOTER ========== */
 .blog-modal-footer {
   padding: 20px 30px;
@@ -1378,6 +1091,26 @@ input, textarea, select {
   bottom: 0;
   z-index: 10;
   border-radius: 0 0 24px 24px;
+}
+
+.blog-cancel-btn {
+  background: #f7fafc;
+  color: #4a5568;
+  border: 2px solid #e2e8f0;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.blog-cancel-btn:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
 }
 
 .blog-save-btn {
@@ -1681,20 +1414,6 @@ input, textarea, select {
     font-size: 12px;
   }
 
-  .blog-selection-section {
-    padding: 12px;
-  }
-  
-  .blog-tag-input-group {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .blog-add-tag-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
   .blog-modal-footer {
     padding: 20px;
     flex-direction: column-reverse;
@@ -1713,6 +1432,14 @@ input, textarea, select {
 
   .blog-confirm-modal-actions {
     flex-direction: column;
+  }
+
+  /* Results Info responsive */
+  .blog-results-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    margin-bottom: 15px;
   }
 }
 
@@ -1742,11 +1469,6 @@ input, textarea, select {
     font-size: 16px;
   }
 
-  .blog-articles-grid--list .blog-article-type-list {
-    font-size: 11px;
-    padding: 3px 10px;
-  }
-
   .blog-article-description {
     font-size: 13px;
   }
@@ -1766,16 +1488,6 @@ input, textarea, select {
   .blog-view-modal-meta {
     flex-direction: column;
     gap: 8px;
-  }
-
-  .blog-view-modal-type-badge {
-    font-size: 12px;
-    padding: 4px 14px;
-  }
-
-  .blog-view-tag {
-    font-size: 12px;
-    padding: 4px 12px;
   }
 
   .blog-modal-header h2 {
@@ -1843,6 +1555,7 @@ input, textarea, select {
   .blog-filters-section,
   .blog-status-filters,
   .blog-search-results-info,
+  .blog-results-info,
   .blog-article-actions,
   .blog-modal-overlay {
     display: none !important;

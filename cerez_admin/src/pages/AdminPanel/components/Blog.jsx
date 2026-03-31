@@ -1,6 +1,7 @@
-// Blog.jsx - Fərdiləşdirilmiş Class Adları ilə
+// Blog.jsx - Məqalə tipi və teqlər silinmiş versiya + Pagination əlavə edilmiş
 import React, { useState, useRef, useEffect } from 'react';
 import './Blog.css';
+import Pagination from './Pagination'; // Pagination komponentini import edirik
 
 // Kateqoriya Dropdown
 const CategoryDropdown = ({ selected, onSelect }) => {
@@ -8,11 +9,14 @@ const CategoryDropdown = ({ selected, onSelect }) => {
   const dropdownRef = useRef(null);
 
   const categories = [
-    { value: 'Sağlamlıq', label: 'Sağlamlıq', icon: 'fa-heart', description: 'Qida dəyəri, vitaminlər, immunitet' },
-    { value: 'Məsləhətlər', label: 'Məsləhətlər', icon: 'fa-lightbulb', description: 'Saxlama, istifadə, praktik tövsiyələr' },
-    { value: 'Reseptlər', label: 'Reseptlər', icon: 'fa-utensils', description: 'Evdə hazırlama, qarışıqlar, qurutma' },
-    { value: 'Elm', label: 'Elm', icon: 'fa-flask', description: 'Araşdırmalar, elmi məlumatlar, tədqiqatlar' },
-    { value: 'Mövsümi', label: 'Mövsümi', icon: 'fa-calendar-alt', description: 'Ramazan, bayramlar, mövsümi təkliflər' }
+    { value: 'Sağlamlıq', label: 'Sağlamlıq', icon: 'fa-heartbeat', description: 'Sağlamlıq tövsiyələri, xəstəliklərdən qorunma, immunitet' },
+    { value: 'Qidalanma', label: 'Qidalanma', icon: 'fa-apple-alt', description: 'Balanslı qidalanma, qida dəyərləri, sağlam qida seçimləri' },
+    { value: 'Təbii Qarışıqlar', label: 'Təbii Qarışıqlar', icon: 'fa-blender', description: 'Evdə hazırlanan təbii qarışıqlar, detoks içkiləri, şərbətlər' },
+    { value: 'Gözəllik', label: 'Gözəllik', icon: 'fa-spa', description: 'Dəri baxımı, saç baxımı, təbii gözəllik məhsulları' },
+    { value: 'Reseptlər', label: 'Reseptlər', icon: 'fa-utensils', description: 'Sağlam yemək reseptləri, quru meyvəli xörəklər, desertlər' },
+    { value: 'İdman', label: 'İdman', icon: 'fa-running', description: 'İdman qidalanması, enerji qarışıqları, idmançılar üçün tövsiyələr' },
+    { value: 'Uşaqlar', label: 'Uşaqlar', icon: 'fa-child', description: 'Uşaqlar üçün sağlam qəlyanaltılar, uşaq qidalanması' },
+    { value: 'Vegan', label: 'Vegan', icon: 'fa-leaf', description: 'Vegan qidalanma, bitki əsaslı reseptlər, alternativ qidalar' }
   ];
 
   const selectedCategory = categories.find(c => c.value === selected);
@@ -63,77 +67,6 @@ const CategoryDropdown = ({ selected, onSelect }) => {
                 <span className="blog-option-description">{category.description}</span>
               </div>
               {selected === category.value && (
-                <i className="fas fa-check blog-option-check"></i>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Məqalə Tipi Dropdown
-const TypeDropdown = ({ selected, onSelect }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  const types = [
-    { value: 'Sağlam Qidalanma', label: 'Sağlam Qidalanma', icon: 'fa-heartbeat', description: 'Qida dəyəri, vitaminlər, sağlamlıq tövsiyələri' },
-    { value: 'Praktik Məsləhətlər', label: 'Praktik Məsləhətlər', icon: 'fa-lightbulb', description: 'Saxlama üsulları, istifadə tövsiyələri, praktik bilgilər' },
-    { value: 'Ev Reseptləri', label: 'Ev Reseptləri', icon: 'fa-utensils', description: 'Qurutma üsulları, qarışıqlar, evdə hazırlama' },
-    { value: 'Elmi Məqalə', label: 'Elmi Məqalə', icon: 'fa-flask', description: 'Araşdırmalar, elmi məlumatlar, tədqiqat nəticələri' },
-    { value: 'Mövsümi Təkliflər', label: 'Mövsümi Təkliflər', icon: 'fa-calendar-alt', description: 'Ramazan, bayramlar, mövsümi məhsullar' }
-  ];
-
-  const selectedType = types.find(t => t.value === selected);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  return (
-    <div className="blog-custom-dropdown" ref={dropdownRef}>
-      <div 
-        className={`blog-dropdown-header ${isOpen ? 'blog-dropdown-header--active' : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {selected ? (
-          <div className="blog-selected-option">
-            <i className={`fas ${selectedType?.icon}`}></i>
-            <span>{selected}</span>
-          </div>
-        ) : (
-          <span className="blog-dropdown-placeholder">Məqalə tipi seçin</span>
-        )}
-        <i className={`fas fa-chevron-${isOpen ? 'up' : 'down'}`}></i>
-      </div>
-      
-      {isOpen && (
-        <div className="blog-dropdown-menu">
-          {types.map(type => (
-            <div
-              key={type.value}
-              className={`blog-dropdown-item ${selected === type.value ? 'blog-dropdown-item--selected' : ''}`}
-              onClick={() => {
-                onSelect(type.value);
-                setIsOpen(false);
-              }}
-            >
-              <div className="blog-option-icon">
-                <i className={`fas ${type.icon}`}></i>
-              </div>
-              <div className="blog-option-content">
-                <span className="blog-option-title">{type.label}</span>
-                <span className="blog-option-description">{type.description}</span>
-              </div>
-              {selected === type.value && (
                 <i className="fas fa-check blog-option-check"></i>
               )}
             </div>
@@ -218,12 +151,17 @@ const Blog = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewArticle, setViewArticle] = useState(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const articlesPerPage = 5; // Hər səhifədə göstəriləcək məqalə sayı
 
   const [articles, setArticles] = useState([
     {
       id: 1,
       title: 'Quru meyvələrin faydaları: Qış aylarında enerji mənbəyiniz',
       description: 'Qaysı, gavalı, əncir və digər quru meyvələrin sağlamlığa faydaları haqqında ətraflı məlumat. Vitaminlərlə zəngin olan bu qidalar immunitet sisteminizi gücləndirir.',
+      excerpt: 'Qaysı, gavalı, əncir və digər quru meyvələrin sağlamlığa faydaları haqqında ətraflı məlumat. Vitaminlərlə zəngin olan bu qidalar immunitet sisteminizi gücləndirir.',
       content: `Quru meyvələr təbii vitamin və mineral mənbəyidir. Qış aylarında təzə meyvə çeşidi azaldığı üçün quru meyvələr əvəzedilməz qida mənbəyinə çevrilir.
 
 Qaysı qurusu - A vitamini və dəmir baxımından zəngindir. Göz sağlamlığı üçün faydalıdır və qan azlığına qarşı kömək edir.
@@ -237,17 +175,18 @@ Xurma - Təbii enerji mənbəyidir. Tərkibindəki şəkərlər orqanizm tərəf
 Bu quru meyvələri günlük qidalanma proqramınıza əlavə etməklə immunitet sisteminizi gücləndirə, enerji səviyyənizi yüksəldə bilərsiniz.`,
       date: '2025-02-20',
       readTime: 6,
+      readTimeString: '6 dəq',
       category: 'Sağlamlıq',
-      tags: ['quru meyvə', 'sağlamlıq', 'qaysı', 'əncir', 'immunitet'],
       status: 'published',
-      type: 'Sağlam Qidalanma',
       image: null,
-      imagePreview: null
+      imagePreview: null,
+      views: 1245
     },
     {
       id: 2,
       title: 'Çərəzlərin doğru saxlanma üsulları: Təzəlik necə qorunur?',
       description: 'Badam, qoz, fındıq və digər çərəzlərin uzun müddət təzə qalması üçün ən effektiv saxlama üsulları. Çərəzləri düzgün saxlamaqla dadını və qida dəyərini qoruyun.',
+      excerpt: 'Badam, qoz, fındıq və digər çərəzlərin uzun müddət təzə qalması üçün ən effektiv saxlama üsulları. Çərəzləri düzgün saxlamaqla dadını və qida dəyərini qoruyun.',
       content: `Çərəzlərin təzə qalması üçün düzgün saxlama üsulları çox önəmlidir. Yanlış saxlanan çərəzlər tez xarab olur, dadını itirir və qida dəyərini azaldır.
 
 Qozun saxlanması:
@@ -267,17 +206,18 @@ Fındığı da sərin yerdə, qabıqlı şəkildə saxlamaq daha yaxşıdır. Qa
 - Əzilmiş və qırılmış çərəzlər daha tez xarab olur`,
       date: '2025-02-18',
       readTime: 5,
-      category: 'Məsləhətlər',
-      tags: ['çərəz', 'saxlama', 'qoz', 'badam', 'fındıq'],
+      readTimeString: '5 dəq',
+      category: 'Qidalanma',
       status: 'published',
-      type: 'Praktik Məsləhətlər',
       image: null,
-      imagePreview: null
+      imagePreview: null,
+      views: 987
     },
     {
       id: 3,
       title: 'Evdə quru meyvə necə hazırlanır? Addım-addım təlimat',
       description: 'Bağınızdan topladığınız meyvələri ev şəraitində qurudaraq il boyu istifadə edin. Alma, armud, gavalı və əzgil qurusu hazırlamağın asan üsulları.',
+      excerpt: 'Bağınızdan topladığınız meyvələri ev şəraitində qurudaraq il boyu istifadə edin. Alma, armud, gavalı və əzgil qurusu hazırlamağın asan üsulları.',
       content: `Ev şəraitində quru meyvə hazırlamaq həm qənaətcil, həm də sağlamdır. Mağazadan alınan quru meyvələrə əlavə şəkər və konservantlar qatıla bilər.
 
 Alma qurusu:
@@ -296,17 +236,18 @@ Saxlama:
 Hazır quru meyvələri tam soyuduqdan sonra hava keçirməyən qablarda, sərin və qaranlıq yerdə saxlayın.`,
       date: '2025-02-22',
       readTime: 8,
+      readTimeString: '8 dəq',
       category: 'Reseptlər',
-      tags: ['evdə hazırlama', 'qurutma', 'alma', 'armud', 'əzgil'],
       status: 'draft',
-      type: 'Ev Reseptləri',
       image: null,
-      imagePreview: null
+      imagePreview: null,
+      views: 0
     },
     {
       id: 4,
       title: 'Qoz və badamın beyin fəaliyyətinə təsiri: Elmi araşdırmalar',
       description: 'Elmi araşdırmalara görə, qoz və badamın müntəzəm istehlakı yaddaşı gücləndirir və beyin fəaliyyətini yaxşılaşdırır. Bu çərəzlərin tərkibindəki omeqa-3 yağ turşularının faydaları.',
+      excerpt: 'Elmi araşdırmalara görə, qoz və badamın müntəzəm istehlakı yaddaşı gücləndirir və beyin fəaliyyətini yaxşılaşdırır. Bu çərəzlərin tərkibindəki omeqa-3 yağ turşularının faydaları.',
       content: `Son illərdə aparılan elmi araşdırmalar qoz və badamın beyin sağlamlığına müsbət təsirini təsdiqləyir.
 
 Qozun tərkibi:
@@ -326,17 +267,18 @@ Tövsiyə:
 Gündə 5-6 ədəd qoz və 10-12 ədəd badam yemək beyin sağlamlığı üçün kifayətdir.`,
       date: '2025-02-15',
       readTime: 7,
-      category: 'Elm',
-      tags: ['qoz', 'badam', 'beyin', 'yaddaş', 'omeqa-3'],
+      readTimeString: '7 dəq',
+      category: 'Sağlamlıq',
       status: 'published',
-      type: 'Elmi Məqalə',
       image: null,
-      imagePreview: null
+      imagePreview: null,
+      views: 1102
     },
     {
       id: 5,
       title: 'Ramazan ayı üçün enerji verən quru meyvə qarışıqları',
       description: 'Ramazan ayında oruc tutarkən enerjinizi qorumaq üçün ideal quru meyvə və çərəz qarışıqları. Xurma, qaysı qurusu, qoz və badamdan hazırlanan qəlyanaltılar.',
+      excerpt: 'Ramazan ayında oruc tutarkən enerjinizi qorumaq üçün ideal quru meyvə və çərəz qarışıqları. Xurma, qaysı qurusu, qoz və badamdan hazırlanan qəlyanaltılar.',
       content: `Ramazan ayında uzun saatlar ac qaldıqdan sonra iftar və sahurda enerji verən qidalar qəbul etmək çox önəmlidir. Quru meyvə və çərəz qarışıqları ideal seçimdir.
 
 Enerji qarışığı 1:
@@ -371,17 +313,18 @@ Faydalar:
 - Lifli qidalar toxluq hissini uzadır`,
       date: '2025-02-10',
       readTime: 4,
-      category: 'Mövsümi',
-      tags: ['ramazan', 'xurma', 'enerji', 'oruc', 'qəlyanaltı'],
+      readTimeString: '4 dəq',
+      category: 'Qidalanma',
       status: 'published',
-      type: 'Mövsümi Təkliflər',
       image: null,
-      imagePreview: null
+      imagePreview: null,
+      views: 876
     },
     {
       id: 6,
       title: 'Əncir qurusunun bilinməyən faydaları: Sümük sağlamlığından həzmə',
       description: 'Əncir qurusunun kalsium, lif və antioksidantlarla zəngin tərkibi haqqında. Sümük sağlamlığı, həzm sistemi və dəri üçün faydaları.',
+      excerpt: 'Əncir qurusunun kalsium, lif və antioksidantlarla zəngin tərkibi haqqında. Sümük sağlamlığı, həzm sistemi və dəri üçün faydaları.',
       content: `Əncir qurusu qədim zamanlardan bəri müalicəvi xüsusiyyətləri ilə tanınır. Müasir elm də bu faydaları təsdiqləyir.
 
 Kalsium mənbəyi:
@@ -406,12 +349,12 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
 - Salatalara əlavə edin`,
       date: '2025-02-05',
       readTime: 5,
+      readTimeString: '5 dəq',
       category: 'Sağlamlıq',
-      tags: ['əncir', 'kalsium', 'həzm', 'antioksidant', 'sümük'],
       status: 'draft',
-      type: 'Sağlam Qidalanma',
       image: null,
-      imagePreview: null
+      imagePreview: null,
+      views: 0
     }
   ]);
 
@@ -424,21 +367,16 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
   const [newArticle, setNewArticle] = useState({
     title: '',
     description: '',
+    excerpt: '',
     category: '',
     content: '',
     status: 'draft',
-    type: '',
-    tags: [],
     image: null,
     imagePreview: '',
-    readTime: ''
+    readTime: '',
+    readTimeString: '',
+    views: 0
   });
-
-  // Tag əlavə etmə üçün state
-  const [tagInput, setTagInput] = useState('');
-
-  const publishedCount = articles.filter(a => a.status === 'published').length;
-  const draftCount = articles.filter(a => a.status === 'draft').length;
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -451,7 +389,6 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
           imagePreview: reader.result
         });
         
-        // Əgər redaktə edilən məqalə varsa, onu da yenilə
         if (selectedArticle) {
           setSelectedArticle({
             ...selectedArticle,
@@ -471,51 +408,50 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
     });
   };
 
-  // Tag əlavə et
-  const handleAddTag = () => {
-    if (tagInput.trim() && !newArticle.tags.includes(tagInput.trim())) {
-      setNewArticle({
-        ...newArticle,
-        tags: [...newArticle.tags, tagInput.trim()]
-      });
-      setTagInput('');
-    }
-  };
-
-  // Tag sil
-  const handleRemoveTag = (tagToRemove) => {
+  // Description dəyişdikdə həm description, həm excerpt yenilənir
+  const handleDescriptionChange = (e) => {
+    const value = e.target.value;
     setNewArticle({
       ...newArticle,
-      tags: newArticle.tags.filter(t => t !== tagToRemove)
+      description: value,
+      excerpt: value
     });
   };
 
-  // Enter düyməsi ilə tag əlavə et
-  const handleTagKeyPress = (e) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault();
-      handleAddTag();
-    }
+  // readTime dəyişdikdə həm readTime, həm readTimeString yenilənir
+  const handleReadTimeChange = (e) => {
+    const value = e.target.value;
+    const numValue = parseInt(value) || 0;
+    setNewArticle({
+      ...newArticle,
+      readTime: numValue,
+      readTimeString: `${numValue} dəq`
+    });
   };
 
   const handleCreateArticle = () => {
+    const readTimeNum = parseInt(newArticle.readTime) || 5;
+    const readTimeStr = `${readTimeNum} dəq`;
+    
     if (selectedArticle) {
-      // Redaktə
       setArticles(articles.map(a => 
         a.id === selectedArticle.id ? { 
           ...selectedArticle, 
-          ...newArticle, 
+          ...newArticle,
           id: selectedArticle.id,
+          readTime: readTimeNum,
+          readTimeString: readTimeStr,
           image: newArticle.imagePreview || selectedArticle.image
         } : a
       ));
     } else {
-      // Yeni məqalə
       const article = {
         id: articles.length + 1,
         ...newArticle,
         date: new Date().toISOString().split('T')[0],
-        readTime: parseInt(newArticle.readTime) || 5,
+        readTime: readTimeNum,
+        readTimeString: readTimeStr,
+        views: 0,
         image: newArticle.imagePreview
       };
       setArticles([...articles, article]);
@@ -536,14 +472,15 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
     setNewArticle({
       title: article.title,
       description: article.description,
+      excerpt: article.excerpt || article.description,
       category: article.category,
       content: article.content || '',
       status: article.status,
-      type: article.type,
-      tags: article.tags || [],
       image: null,
       imagePreview: article.image || '',
-      readTime: article.readTime
+      readTime: article.readTime,
+      readTimeString: article.readTimeString || `${article.readTime} dəq`,
+      views: article.views || 0
     });
     setShowCreateModal(true);
   };
@@ -554,16 +491,16 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
     setNewArticle({
       title: '',
       description: '',
+      excerpt: '',
       category: '',
       content: '',
       status: 'draft',
-      type: '',
-      tags: [],
       image: null,
       imagePreview: '',
-      readTime: ''
+      readTime: '',
+      readTimeString: '',
+      views: 0
     });
-    setTagInput('');
   };
 
   const openDeleteConfirmModal = (id) => {
@@ -596,6 +533,7 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
     }
   };
 
+  // Filter edilmiş məqalələr
   const filteredArticles = articles.filter(article => {
     const matchesSearch = searchTerm === '' || 
       article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -606,8 +544,34 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
     return matchesSearch && matchesFilter;
   });
 
+  // Pagination üçün hesablamalar
+  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+  const indexOfLastArticle = currentPage * articlesPerPage;
+  const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
+  const currentArticles = filteredArticles.slice(indexOfFirstArticle, indexOfLastArticle);
+
+  // ========== SƏHİFƏ DƏYİŞMƏ - SADƏCƏ STATE YENİLƏYİR ==========
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   const clearSearch = () => {
     setSearchTerm('');
+    setCurrentPage(1);
+  };
+
+  const handleFilterStatusChange = (status) => {
+    setFilterStatus(status);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
   };
 
   return (
@@ -623,7 +587,7 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
             type="text" 
             placeholder="Məqalə axtar..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             autoComplete="off"
           />
           {searchTerm && (
@@ -641,7 +605,7 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
           <button 
             type="button"
             className={`blog-view-btn ${viewMode === 'card' ? 'blog-view-btn--active' : ''}`}
-            onClick={() => setViewMode('card')}
+            onClick={() => handleViewModeChange('card')}
           >
             Kart Görünüşü
           </button>
@@ -649,7 +613,7 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
           <button 
             type="button"
             className={`blog-view-btn ${viewMode === 'list' ? 'blog-view-btn--active' : ''}`}
-            onClick={() => setViewMode('list')}
+            onClick={() => handleViewModeChange('list')}
           >
             Siyahı Görünüşü
           </button>
@@ -663,14 +627,15 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
             setNewArticle({
               title: '',
               description: '',
+              excerpt: '',
               category: '',
               content: '',
               status: 'draft',
-              type: '',
-              tags: [],
               image: null,
               imagePreview: '',
-              readTime: ''
+              readTime: '',
+              readTimeString: '',
+              views: 0
             });
             setShowCreateModal(true);
           }}
@@ -684,21 +649,21 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
         <button 
           type="button"
           className={`blog-status-btn ${filterStatus === 'all' ? 'blog-status-btn--active' : ''}`}
-          onClick={() => setFilterStatus('all')}
+          onClick={() => handleFilterStatusChange('all')}
         >
           Hamısı ({articles.length})
         </button>
         <button 
           type="button"
           className={`blog-status-btn ${filterStatus === 'published' ? 'blog-status-btn--active' : ''}`}
-          onClick={() => setFilterStatus('published')}
+          onClick={() => handleFilterStatusChange('published')}
         >
           Yayımlanıb ({articles.filter(a => a.status === 'published').length})
         </button>
         <button 
           type="button"
           className={`blog-status-btn ${filterStatus === 'draft' ? 'blog-status-btn--active' : ''}`}
-          onClick={() => setFilterStatus('draft')}
+          onClick={() => handleFilterStatusChange('draft')}
         >
           Qaralama ({articles.filter(a => a.status === 'draft').length})
         </button>
@@ -713,6 +678,14 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
         </div>
       )}
 
+      {/* Results Info - Nəticə sayı */}
+      <div className="blog-results-info">
+        <p>Cəmi <strong>{filteredArticles.length}</strong> məqalə tapıldı</p>
+        {filteredArticles.length > 0 && (
+          <p className="blog-results-detail">Səhifə: {currentPage} / {totalPages}</p>
+        )}
+      </div>
+
       {filteredArticles.length === 0 ? (
         <div className="blog-no-results">
           <i className="fas fa-search"></i>
@@ -726,14 +699,15 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
               setNewArticle({
                 title: '',
                 description: '',
+                excerpt: '',
                 category: '',
                 content: '',
                 status: 'draft',
-                type: '',
-                tags: [],
                 image: null,
                 imagePreview: '',
-                readTime: ''
+                readTime: '',
+                readTimeString: '',
+                views: 0
               });
               setShowCreateModal(true);
             }}
@@ -743,94 +717,90 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
           </button>
         </div>
       ) : (
-        <div className={`blog-articles-grid blog-articles-grid--${viewMode}`}>
-          {filteredArticles.map(article => (
-            <div key={article.id} className={`blog-article-card blog-article-card--${article.status} blog-article-card--${viewMode}`}>
-              {(article.imagePreview || article.image) && (
-                <div 
-                  className="blog-article-image" 
-                  style={{backgroundImage: `url(${article.imagePreview || article.image})`}}
-                >
-                  {article.type && viewMode === 'card' && (
-                    <div className="blog-article-type-badge">{article.type}</div>
-                  )}
-                </div>
-              )}
-              
-              {viewMode === 'card' && !article.imagePreview && !article.image && article.type && (
-                <div className="blog-article-type-header">{article.type}</div>
-              )}
-
-              <div className="blog-article-content">
-                <div className="blog-article-header">
-                  <h3 className="blog-article-title">{article.title}</h3>
-                  {getStatusBadge(article.status)}
-                </div>
-
-                {viewMode === 'list' && article.type && (
-                  <div className="blog-article-type-list">{article.type}</div>
+        <>
+          <div className={`blog-articles-grid blog-articles-grid--${viewMode}`}>
+            {currentArticles.map(article => (
+              <div key={article.id} className={`blog-article-card blog-article-card--${article.status} blog-article-card--${viewMode}`}>
+                {(article.imagePreview || article.image) && (
+                  <div 
+                    className="blog-article-image" 
+                    style={{backgroundImage: `url(${article.imagePreview || article.image})`}}
+                  />
                 )}
 
-                <p className="blog-article-description">{article.description}</p>
-                
-                <div className="blog-article-meta">
-                  <span className="blog-meta-item">
-                    <i className="far fa-calendar"></i>
-                    {new Date(article.date).toLocaleDateString('az-AZ')}
-                  </span>
-                  <span className="blog-meta-item">
-                    <i className="far fa-clock"></i>
-                    {article.readTime} dəq
-                  </span>
-                  {article.category && (
-                    <span className="blog-meta-item">
-                      <i className="fas fa-tag"></i>
-                      {article.category}
-                    </span>
-                  )}
-                </div>
-
-                {article.tags && article.tags.length > 0 && (
-                  <div className="blog-article-tags">
-                    {article.tags.map((tag, index) => (
-                      <a key={index} href="#" className="blog-tag-link" onClick={(e) => e.preventDefault()}>
-                        <i className="fas fa-hashtag"></i>
-                        {tag}
-                      </a>
-                    ))}
+                <div className="blog-article-content">
+                  <div className="blog-article-header">
+                    <h3 className="blog-article-title">{article.title}</h3>
+                    {getStatusBadge(article.status)}
                   </div>
-                )}
 
-                <div className="blog-article-actions">
-                  <button 
-                    type="button"
-                    className="blog-action-btn blog-action-btn--view"
-                    onClick={() => openViewModal(article)}
-                  >
-                    <i className="fas fa-eye"></i>
-                    Bax
-                  </button>
-                  <button 
-                    type="button"
-                    className="blog-action-btn blog-action-btn--edit"
-                    onClick={() => handleEditArticle(article)}
-                  >
-                    <i className="fas fa-edit"></i>
-                    Redaktə
-                  </button>
-                  <button 
-                    type="button"
-                    className="blog-action-btn blog-action-btn--delete"
-                    onClick={() => openDeleteConfirmModal(article.id)}
-                  >
-                    <i className="fas fa-trash"></i>
-                    Sil
-                  </button>
+                  <p className="blog-article-description">{article.description}</p>
+                  
+                  <div className="blog-article-meta">
+                    <span className="blog-meta-item">
+                      <i className="far fa-calendar"></i>
+                      {new Date(article.date).toLocaleDateString('az-AZ')}
+                    </span>
+                    <span className="blog-meta-item">
+                      <i className="far fa-clock"></i>
+                      {article.readTimeString || `${article.readTime} dəq`}
+                    </span>
+                    {article.category && (
+                      <span className="blog-meta-item">
+                        <i className="fas fa-tag"></i>
+                        {article.category}
+                      </span>
+                    )}
+                    {article.views !== undefined && (
+                      <span className="blog-meta-item">
+                        <i className="fas fa-eye"></i>
+                        {article.views} baxış
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="blog-article-actions">
+                    <button 
+                      type="button"
+                      className="blog-action-btn blog-action-btn--view"
+                      onClick={() => openViewModal(article)}
+                    >
+                      <i className="fas fa-eye"></i>
+                      Bax
+                    </button>
+                    <button 
+                      type="button"
+                      className="blog-action-btn blog-action-btn--edit"
+                      onClick={() => handleEditArticle(article)}
+                    >
+                      <i className="fas fa-edit"></i>
+                      Redaktə
+                    </button>
+                    <button 
+                      type="button"
+                      className="blog-action-btn blog-action-btn--delete"
+                      onClick={() => openDeleteConfirmModal(article.id)}
+                    >
+                      <i className="fas fa-trash"></i>
+                      Sil
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/* Vahid Pagination Komponenti */}
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              pageParamName="page"
+              scrollToTop={true}
+            />
+          )}
+        </>
       )}
 
       {/* Məqaləyə baxma modali */}
@@ -860,14 +830,17 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
                   <i className="far fa-calendar"></i> {new Date(viewArticle.date).toLocaleDateString('az-AZ')}
                 </span>
                 <span className="blog-meta-item">
-                  <i className="far fa-clock"></i> {viewArticle.readTime} dəq oxuma
+                  <i className="far fa-clock"></i> {viewArticle.readTimeString || `${viewArticle.readTime} dəq oxuma`}
                 </span>
                 <span className="blog-meta-item">
                   <i className="fas fa-tag"></i> {viewArticle.category}
                 </span>
+                {viewArticle.views !== undefined && (
+                  <span className="blog-meta-item">
+                    <i className="fas fa-eye"></i> {viewArticle.views} baxış
+                  </span>
+                )}
               </div>
-              
-              <div className="blog-view-modal-type-badge">{viewArticle.type}</div>
               
               <div className="blog-view-modal-description">
                 <p>{viewArticle.description}</p>
@@ -885,17 +858,6 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
                   )}
                 </div>
               </div>
-              
-              {viewArticle.tags && viewArticle.tags.length > 0 && (
-                <div className="blog-view-modal-tags">
-                  <h4>Teqlər:</h4>
-                  <div className="blog-tags-container">
-                    {viewArticle.tags.map((tag, index) => (
-                      <span key={index} className="blog-view-tag">#{tag}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
             
             <div className="blog-view-modal-footer">
@@ -977,8 +939,8 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
                   <label>Qısa təsvir</label>
                   <textarea 
                     value={newArticle.description}
-                    onChange={(e) => setNewArticle({...newArticle, description: e.target.value})}
-                    placeholder="Məqalə haqqında qısa məlumat. Məs: Qaysı, gavalı, əncir və digər quru meyvələrin sağlamlığa faydaları..."
+                    onChange={handleDescriptionChange}
+                    placeholder="Məqalə haqqında qısa məlumat..."
                     rows="3"
                     className="blog-form-textarea"
                   />
@@ -997,18 +959,10 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
                   <input 
                     type="number" 
                     value={newArticle.readTime}
-                    onChange={(e) => setNewArticle({...newArticle, readTime: e.target.value})}
+                    onChange={handleReadTimeChange}
                     placeholder="5"
                     min="1"
                     className="blog-form-input"
-                  />
-                </div>
-
-                <div className="blog-form-group">
-                  <label>Məqalə tipi</label>
-                  <TypeDropdown 
-                    selected={newArticle.type}
-                    onSelect={(value) => setNewArticle({...newArticle, type: value})}
                   />
                 </div>
 
@@ -1020,60 +974,12 @@ Tərkibindəki kalium qan təzyiqini tənzimləməyə kömək edir.
                   />
                 </div>
 
-                {/* Tag əlavə etmə bölməsi */}
-                <div className="blog-form-group blog-form-group--full blog-selection-section">
-                  <label>Teqlər (məhsul adları, faydalar, mövzular)</label>
-                  
-                  <div className="blog-tag-input-group">
-                    <input 
-                      type="text"
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyPress={handleTagKeyPress}
-                      placeholder="Məs: quru meyvə, qoz, badam, sağlamlıq, resept..."
-                      className="blog-tag-input"
-                    />
-                    <button 
-                      type="button"
-                      onClick={handleAddTag}
-                      className="blog-add-tag-btn"
-                      disabled={!tagInput.trim()}
-                    >
-                      <i className="fas fa-plus"></i>
-                      Əlavə et
-                    </button>
-                  </div>
-
-                  {newArticle.tags.length > 0 && (
-                    <div className="blog-selected-tags">
-                      <div className="blog-selected-tags-title">
-                        <i className="fas fa-tags"></i>
-                        <span>Əlavə edilmiş teqlər ({newArticle.tags.length})</span>
-                      </div>
-                      <div className="blog-tags-list">
-                        {newArticle.tags.map((tag, index) => (
-                          <div key={index} className="blog-tag-item">
-                            <span className="blog-tag-name">#{tag}</span>
-                            <button 
-                              type="button"
-                              className="blog-remove-tag-btn"
-                              onClick={() => handleRemoveTag(tag)}
-                            >
-                              <i className="fas fa-times"></i>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 <div className="blog-form-group blog-form-group--full">
                   <label>Məqalə məzmunu</label>
                   <textarea 
                     value={newArticle.content}
                     onChange={(e) => setNewArticle({...newArticle, content: e.target.value})}
-                    placeholder="Məqalə məzmununu daxil edin. Quru meyvələr, çərəzlər, sağlam qidalanma haqqında ətraflı məlumat..."
+                    placeholder="Məqalə məzmununu daxil edin..."
                     rows="8"
                     className="blog-form-textarea"
                   />

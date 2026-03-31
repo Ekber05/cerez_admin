@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Campaigns.css';
+import Pagination from './Pagination'; // Pagination komponentini import edirik
 
 const Campaigns = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -22,6 +23,10 @@ const Campaigns = () => {
   const [productSearchTerm, setProductSearchTerm] = useState('');
   const [customProduct, setCustomProduct] = useState('');
   
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const campaignsPerPage = 5; // Hər səhifədə göstəriləcək kampaniya sayı
+
   const [campaigns, setCampaigns] = useState([
     {
       id: 1,
@@ -361,6 +366,7 @@ const Campaigns = () => {
     return selected ? selected.label : 'Status seçin';
   };
 
+  // Filter edilmiş kampaniyalar
   const filteredCampaigns = campaigns.filter(campaign => {
     const matchesSearch = searchTerm === '' || 
       campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -371,8 +377,32 @@ const Campaigns = () => {
     return matchesSearch && matchesFilter;
   });
 
+  // Pagination üçün hesablamalar
+  const totalPages = Math.ceil(filteredCampaigns.length / campaignsPerPage);
+  const indexOfLastCampaign = currentPage * campaignsPerPage;
+  const indexOfFirstCampaign = indexOfLastCampaign - campaignsPerPage;
+  const currentCampaigns = filteredCampaigns.slice(indexOfFirstCampaign, indexOfLastCampaign);
+
+  // ========== SƏHİFƏ DƏYİŞMƏ - SADƏCƏ STATE YENİLƏYİR ==========
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    // URL artıq Pagination komponentində yenilənir
+    // Burada SADƏCƏ state-i dəyişdiririk
+  };
+
   const clearSearch = () => {
     setSearchTerm('');
+    setCurrentPage(1);
+  };
+
+  const handleFilterStatusChange = (status) => {
+    setFilterStatus(status);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   const handleSelectDiscountType = (value) => {
@@ -431,7 +461,7 @@ const Campaigns = () => {
             type="text" 
             placeholder="Kampaniya axtar..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             autoComplete="off"
           />
           {searchTerm && (
@@ -448,28 +478,28 @@ const Campaigns = () => {
           <button 
             type="button"
             className={filterStatus === 'all' ? 'active' : ''}
-            onClick={() => setFilterStatus('all')}
+            onClick={() => handleFilterStatusChange('all')}
           >
             Hamısı ({campaigns.length})
           </button>
           <button 
             type="button"
             className={filterStatus === 'active' ? 'active' : ''}
-            onClick={() => setFilterStatus('active')}
+            onClick={() => handleFilterStatusChange('active')}
           >
             Aktiv ({campaigns.filter(c => c.status === 'active').length})
           </button>
           <button 
             type="button"
             className={filterStatus === 'inactive' ? 'active' : ''}
-            onClick={() => setFilterStatus('inactive')}
+            onClick={() => handleFilterStatusChange('inactive')}
           >
             Deaktiv ({campaigns.filter(c => c.status === 'inactive').length})
           </button>
           <button 
             type="button"
             className={filterStatus === 'completed' ? 'active' : ''}
-            onClick={() => setFilterStatus('completed')}
+            onClick={() => handleFilterStatusChange('completed')}
           >
             Bitmiş ({campaigns.filter(c => c.status === 'completed').length})
           </button>
@@ -484,6 +514,14 @@ const Campaigns = () => {
           </p>
         </div>
       )}
+
+      {/* Results Info - Nəticə sayı */}
+      <div className="campaigns-results-info">
+        <p>Cəmi <strong>{filteredCampaigns.length}</strong> kampaniya tapıldı</p>
+        {filteredCampaigns.length > 0 && (
+          <p className="campaigns-results-detail">Səhifə: {currentPage} / {totalPages}</p>
+        )}
+      </div>
 
       {filteredCampaigns.length === 0 ? (
         <div className="no-results">
@@ -520,85 +558,98 @@ const Campaigns = () => {
           </button>
         </div>
       ) : (
-        <div className="campaigns-grid">
-          {filteredCampaigns.map(campaign => (
-            <div key={campaign.id} className="campaign-card">
-              <div className="campaign-banner" style={{backgroundImage: `url(${campaign.banner})`}}>
-                {campaign.promoCode && (
-                  <div className="promo-code-badge">
-                    {campaign.promoCode}
-                  </div>
-                )}
-              </div>
-              <div className="campaign-content">
-                <div className="campaign-header">
-                  <h3>{campaign.name}</h3>
-                  {getStatusBadge(campaign.status)}
+        <>
+          <div className="campaigns-grid">
+            {currentCampaigns.map(campaign => (
+              <div key={campaign.id} className="campaign-card">
+                <div className="campaign-banner" style={{backgroundImage: `url(${campaign.banner})`}}>
+                  {campaign.promoCode && (
+                    <div className="promo-code-badge">
+                      {campaign.promoCode}
+                    </div>
+                  )}
                 </div>
-                <p className="campaign-description">{campaign.description}</p>
-                
-                <div className="campaign-details">
-                  <div className="detail-item">
-                    <i className="fas fa-tag"></i>
-                    <span>Endirim: <strong>{getDiscountDisplay(campaign)}</strong></span>
+                <div className="campaign-content">
+                  <div className="campaign-header">
+                    <h3>{campaign.name}</h3>
+                    {getStatusBadge(campaign.status)}
                   </div>
-                  <div className="detail-item">
-                    <i className="far fa-calendar"></i>
-                    <span>
-                      {new Date(campaign.startDate).toLocaleDateString('az-AZ')} - 
-                      {new Date(campaign.endDate).toLocaleDateString('az-AZ')}
-                    </span>
+                  <p className="campaign-description">{campaign.description}</p>
+                  
+                  <div className="campaign-details">
+                    <div className="detail-item">
+                      <i className="fas fa-tag"></i>
+                      <span>Endirim: <strong>{getDiscountDisplay(campaign)}</strong></span>
+                    </div>
+                    <div className="detail-item">
+                      <i className="far fa-calendar"></i>
+                      <span>
+                        {new Date(campaign.startDate).toLocaleDateString('az-AZ')} - 
+                        {new Date(campaign.endDate).toLocaleDateString('az-AZ')}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <i className="fas fa-map-marker-alt"></i>
+                      <span>Tətbiq: {
+                        campaign.applyTo === 'all' ? 'Bütün məhsullar' :
+                        `${campaign.products?.length || 0} Məhsul`
+                      }</span>
+                    </div>
                   </div>
-                  <div className="detail-item">
-                    <i className="fas fa-map-marker-alt"></i>
-                    <span>Tətbiq: {
-                      campaign.applyTo === 'all' ? 'Bütün məhsullar' :
-                      `${campaign.products?.length || 0} Məhsul`
-                    }</span>
-                  </div>
-                </div>
 
-                <div className="campaign-actions">
-                  <button 
-                    type="button"
-                    className="edit-btn"
-                    onClick={() => handleEditCampaign(campaign)}
-                  >
-                    <i className="fas fa-edit"></i>
-                    Redaktə
-                  </button>
-                  <button 
-                    type="button"
-                    className="status-btn"
-                    onClick={() => handleToggleStatus(campaign.id)}
-                  >
-                    <i className={`fas fa-${campaign.status === 'active' ? 'pause' : 'play'}`}></i>
-                    {campaign.status === 'active' ? 'Deaktiv et' : 'Aktiv et'}
-                  </button>
-                  {campaign.status === 'active' && (
+                  <div className="campaign-actions">
                     <button 
                       type="button"
-                      className="end-now-btn"
-                      onClick={() => openEndConfirmModal(campaign.id)}
-                      title="Kampaniyanı dərhal bitir"
+                      className="edit-btn"
+                      onClick={() => handleEditCampaign(campaign)}
                     >
-                      <i className="fas fa-clock"></i>
-                      Bitir
+                      <i className="fas fa-edit"></i>
+                      Redaktə
                     </button>
-                  )}
-                  <button 
-                    type="button"
-                    className="delete-btn"
-                    onClick={() => openDeleteConfirmModal(campaign.id)}
-                  >
-                    <i className="fas fa-trash"></i>
-                    Sil
-                  </button>
+                    <button 
+                      type="button"
+                      className="status-btn"
+                      onClick={() => handleToggleStatus(campaign.id)}
+                    >
+                      <i className={`fas fa-${campaign.status === 'active' ? 'pause' : 'play'}`}></i>
+                      {campaign.status === 'active' ? 'Deaktiv et' : 'Aktiv et'}
+                    </button>
+                    {campaign.status === 'active' && (
+                      <button 
+                        type="button"
+                        className="end-now-btn"
+                        onClick={() => openEndConfirmModal(campaign.id)}
+                        title="Kampaniyanı dərhal bitir"
+                      >
+                        <i className="fas fa-clock"></i>
+                        Bitir
+                      </button>
+                    )}
+                    <button 
+                      type="button"
+                      className="delete-btn"
+                      onClick={() => openDeleteConfirmModal(campaign.id)}
+                    >
+                      <i className="fas fa-trash"></i>
+                      Sil
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/* Vahid Pagination Komponenti */}
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              pageParamName="page"
+              scrollToTop={true}
+            />
+          )}
+        </>
       )}
 
       {/* Yeni kampaniya yaratma modali */}

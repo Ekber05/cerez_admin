@@ -1,20 +1,23 @@
+// src/components/AdminPanel/components/ProductList.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useProducts } from '../../../contexts/ProductContext';
+import StockManagement from './StockManagement';
+import Pagination from './Pagination';
 import './ProductList.css';
 import { 
-  FiSearch, FiFilter, FiDownload, FiPrinter, 
-  FiEye, FiEdit, FiTrash2, FiChevronLeft, 
-  FiChevronRight, FiChevronsLeft, FiChevronsRight,
+  FiSearch, FiDownload, FiPrinter, 
+  FiEye, FiEdit, FiTrash2,
   FiRefreshCw, FiX, FiCheck, FiClock, FiAlertCircle,
   FiPackage, FiChevronDown, FiImage, FiDollarSign, FiArchive, FiSave,
-  FiUpload, FiFileText
+  FiUpload
 } from 'react-icons/fi';
 
 const ProductList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { products, deleteProduct, updateProduct } = useProducts();
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -30,20 +33,84 @@ const ProductList = () => {
   const [editModal, setEditModal] = useState({ show: false, product: null });
   const [imageModal, setImageModal] = useState({ show: false, product: null });
   const [deleteModal, setDeleteModal] = useState({ show: false, productId: null });
+  const [stockModal, setStockModal] = useState({ show: false, product: null });
+  const [stockMovements, setStockMovements] = useState([]);
   
   const fileInputRef = useRef(null);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const categoryDropdownRef = useRef(null);
 
-  const productsPerPage = 10;
+  const productsPerPage = 20;
 
   const categories = [
-    'Quru meyvələr',
-    'Çərəzlər'
+    'Meyvə quruları',
+    'Duzlu çərəzlər',
+    'Şokoladlı çərəzlər',
+    'Ədviyyatlar',
+    'Paxlalılar və Taxıllar',
+    'Bitki Yağları',
+    'Qurudulmuş Otlar və Çaylar',
+    'Hədiyyə paketləri'
   ];
+
+  // URL-dən filter parametrlərini oxu
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl && categories.includes(categoryFromUrl)) {
+      setFilterCategory(categoryFromUrl);
+    }
+    
+    const priceFromUrl = searchParams.get('price');
+    if (priceFromUrl && ['low', 'medium', 'high', 'premium'].includes(priceFromUrl)) {
+      setPriceFilter(priceFromUrl);
+    }
+    
+    const stockFromUrl = searchParams.get('stock');
+    if (stockFromUrl && ['inStock', 'lowStock', 'outOfStock'].includes(stockFromUrl)) {
+      setStockFilter(stockFromUrl);
+    }
+    
+    const searchFromUrl = searchParams.get('search');
+    if (searchFromUrl) {
+      setSearchTerm(searchFromUrl);
+    }
+  }, []);
+
+  // URL parametrlərini yenilə
+  const updateUrlParams = (category, price, stock, search) => {
+    const newParams = new URLSearchParams();
+    
+    if (category && category !== 'all') {
+      newParams.set('category', category);
+    }
+    if (price && price !== 'all') {
+      newParams.set('price', price);
+    }
+    if (stock && stock !== 'all') {
+      newParams.set('stock', stock);
+    }
+    if (search && search.trim() !== '') {
+      newParams.set('search', search);
+    }
+    
+    setSearchParams(newParams, { replace: false });
+  };
+
+  // Stok hərəkətlərini yüklə
+  useEffect(() => {
+    const savedMovements = localStorage.getItem('stock_movements');
+    if (savedMovements) {
+      setStockMovements(JSON.parse(savedMovements));
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setOpenDropdown(null);
+      }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
+        setIsCategoryDropdownOpen(false);
       }
     };
 
@@ -62,15 +129,44 @@ const ProductList = () => {
     }, 3000);
   };
 
+  // Məhsulu normallaşdır
+  const normalizeProduct = (product) => {
+    return {
+      ...product,
+      pricePerKg: product.pricePerKg !== undefined ? product.pricePerKg : (product.price || 0),
+      img: product.img || product.image || null,
+      stock: product.stock !== undefined ? product.stock : 0
+    };
+  };
+
+  // Stok yeniləmə funksiyası
+  const handleUpdateStock = async (productId, newStock, movement) => {
+    const productIdStr = String(productId);
+    const product = products.find(p => String(p.id) === productIdStr);
+    if (!product) return;
+    
+    const updatedProduct = { ...product, stock: newStock };
+    updateProduct(updatedProduct);
+    
+    setStockMovements(prev => [movement, ...prev]);
+    
+    const savedMovements = JSON.parse(localStorage.getItem('stock_movements') || '[]');
+    savedMovements.push(movement);
+    localStorage.setItem('stock_movements', JSON.stringify(savedMovements));
+    
+    showNotification(`${movement.type === 'in' ? '✅ Stok əlavə edildi!' : '⚠️ Stok azaldıldı!'}`, 'success');
+  };
+
   const getFilteredProducts = () => {
-    let filtered = [...products];
+    let filtered = products.map(normalizeProduct);
     
     if (searchTerm.trim() !== '') {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()))
+        String(product.name).toLowerCase().includes(searchLower) ||
+        String(product.id).toLowerCase().includes(searchLower) ||
+        String(product.category).toLowerCase().includes(searchLower) ||
+        (product.description && String(product.description).toLowerCase().includes(searchLower))
       );
     }
     
@@ -78,27 +174,41 @@ const ProductList = () => {
       filtered = filtered.filter(product => product.category === filterCategory);
     }
     
+    const getProductPrice = (product) => product.pricePerKg || product.price || 0;
+    
     if (priceFilter !== 'all') {
       if (priceFilter === 'low') {
-        filtered = filtered.filter(product => product.price < 10);
+        filtered = filtered.filter(product => getProductPrice(product) < 10);
       } else if (priceFilter === 'medium') {
-        filtered = filtered.filter(product => product.price >= 10 && product.price < 20);
+        filtered = filtered.filter(product => getProductPrice(product) >= 10 && getProductPrice(product) < 20);
       } else if (priceFilter === 'high') {
-        filtered = filtered.filter(product => product.price >= 20 && product.price < 30);
+        filtered = filtered.filter(product => getProductPrice(product) >= 20 && getProductPrice(product) < 30);
       } else if (priceFilter === 'premium') {
-        filtered = filtered.filter(product => product.price >= 30);
+        filtered = filtered.filter(product => getProductPrice(product) >= 30);
       }
     }
     
     if (stockFilter !== 'all') {
       if (stockFilter === 'inStock') {
-        filtered = filtered.filter(product => product.stock > 10);
+        filtered = filtered.filter(product => (product.stock || 0) > 10);
       } else if (stockFilter === 'lowStock') {
-        filtered = filtered.filter(product => product.stock > 0 && product.stock <= 10);
+        filtered = filtered.filter(product => (product.stock || 0) > 0 && (product.stock || 0) <= 10);
       } else if (stockFilter === 'outOfStock') {
-        filtered = filtered.filter(product => product.stock === 0);
+        filtered = filtered.filter(product => (product.stock || 0) === 0);
       }
     }
+    
+    filtered.sort((a, b) => {
+      if (a.featured !== b.featured) {
+        return a.featured ? -1 : 1;
+      }
+      const orderA = a.order !== undefined ? a.order : 999;
+      const orderB = b.order !== undefined ? b.order : 999;
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      return String(a.id).localeCompare(String(b.id));
+    });
     
     return filtered;
   };
@@ -109,13 +219,53 @@ const ProductList = () => {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
+  const getStockStatus = (stock) => {
+    const stockValue = stock || 0;
+    if (stockValue <= 0) {
+      return { class: 'stock-critical', text: 'Bitib!', icon: '🔴' };
+    } else if (stockValue <= 10) {
+      return { class: 'stock-low', text: 'Az qalıb', icon: '🟡' };
+    } else if (stockValue <= 50) {
+      return { class: 'stock-medium', text: 'Normal', icon: '🟢' };
+    }
+    return { class: 'stock-high', text: 'Çoxdur', icon: '✅' };
+  };
+
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+    const value = e.target.value;
+    setSearchTerm(value);
     setCurrentPage(1);
+    updateUrlParams(filterCategory, priceFilter, stockFilter, value);
+  };
+
+  const handleFilterCategoryChange = (category) => {
+    setFilterCategory(category);
+    setCurrentPage(1);
+    setOpenDropdown(null);
+    updateUrlParams(category, priceFilter, stockFilter, searchTerm);
+  };
+
+  const handlePriceFilterChange = (price) => {
+    setPriceFilter(price);
+    setCurrentPage(1);
+    setOpenDropdown(null);
+    updateUrlParams(filterCategory, price, stockFilter, searchTerm);
+  };
+
+  const handleStockFilterChange = (stock) => {
+    setStockFilter(stock);
+    setCurrentPage(1);
+    setOpenDropdown(null);
+    updateUrlParams(filterCategory, priceFilter, stock, searchTerm);
+  };
+
+  // Səhifə dəyişmə funksiyası - SADƏCƏ STATE YENİLƏYİR
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
   
   const handleViewProduct = (product) => {
-    setViewModal({ show: true, product });
+    setViewModal({ show: true, product: normalizeProduct(product) });
   };
 
   const closeViewModal = () => {
@@ -125,7 +275,7 @@ const ProductList = () => {
   const handleEditProduct = (product) => {
     setEditModal({ 
       show: true, 
-      product: { ...product }
+      product: normalizeProduct({ ...product })
     });
   };
 
@@ -134,7 +284,9 @@ const ProductList = () => {
       ...editModal,
       product: {
         ...editModal.product,
-        [field]: field === 'price' || field === 'stock' ? parseFloat(value) || 0 : value
+        [field]: field === 'pricePerKg' || field === 'stock' ? parseFloat(value) || 0 : 
+                 field === 'order' ? parseInt(value) || 0 : 
+                 field === 'id' ? String(value) : value
       }
     });
   };
@@ -150,14 +302,18 @@ const ProductList = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        handleEditChange('image', reader.result);
+        handleEditChange('img', reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const saveEdit = () => {
-    updateProduct(editModal.product);
+    const updatedProduct = {
+      ...editModal.product,
+      id: String(editModal.product.id)
+    };
+    updateProduct(updatedProduct);
     setEditModal({ show: false, product: null });
     showNotification('Məhsul məlumatları uğurla yeniləndi!', 'success');
   };
@@ -167,7 +323,7 @@ const ProductList = () => {
   };
 
   const handleImageClick = (product) => {
-    setImageModal({ show: true, product });
+    setImageModal({ show: true, product: normalizeProduct(product) });
   };
 
   const closeImageModal = () => {
@@ -195,13 +351,14 @@ const ProductList = () => {
 
   const handleExport = () => {
     const exportData = filteredProducts.map(product => ({
-      'Məhsul kodu': product.id,
+      'ID': String(product.id),
       'Məhsul adı': product.name,
       'Kateqoriya': product.category,
       'Açıqlama': product.description || '-',
-      'Qiymət (AZN/kq)': product.price.toFixed(2),
-      'Stok miqdarı (kq)': product.stock,
-      'Stok dəyəri (AZN)': (product.price * product.stock).toFixed(2)
+      'Qiymət (AZN/kq)': (product.pricePerKg || product.price || 0).toFixed(2),
+      'Stok miqdarı (kq)': product.stock || 0,
+      'Stok dəyəri (AZN)': ((product.pricePerKg || product.price || 0) * (product.stock || 0)).toFixed(2),
+      'Yerləşmə': product.featured ? 'Ana səhifə' : 'Bütün məhsullar'
     }));
     
     const headers = Object.keys(exportData[0] || {}).join(',');
@@ -227,14 +384,15 @@ const ProductList = () => {
     const printWindow = window.open('', '_blank');
     
     const tableRows = filteredProducts.map(product => `
-      <tr>
-        <td>${product.id}</td>
-        <td>${product.name}</td>
-        <td>${product.category}</td>
-        <td>${product.description || '-'}</td>
-        <td>₼${product.price.toFixed(2)}</td>
-        <td>${product.stock} kq</td>
-      </tr>
+        <tr>
+          <td>${String(product.id)}</td>
+          <td>${product.name}</td>
+          <td>${product.category}</td>
+          <td>${product.description || '-'}</td>
+          <td>₼${(product.pricePerKg || product.price || 0).toFixed(2)}</td>
+          <td>${product.stock || 0} kq</td>
+          <td>${product.featured ? 'Ana səhifə' : 'Bütün məhsullar'}</td>
+        </tr>
     `).join('');
     
     printWindow.document.write(`
@@ -259,12 +417,13 @@ const ProductList = () => {
           <table>
             <thead>
               <tr>
-                <th>Məhsul kodu</th>
+                <th>ID</th>
                 <th>Məhsul adı</th>
                 <th>Kateqoriya</th>
                 <th>Açıqlama</th>
                 <th>Qiymət (kq)</th>
                 <th>Stok (kq)</th>
+                <th>Yerləşmə</th>
               </tr>
             </thead>
             <tbody>
@@ -273,7 +432,7 @@ const ProductList = () => {
           </table>
           <div class="footer">
             <p>Cəmi məhsul: ${filteredProducts.length}</p>
-            <p>Ümumi stok dəyəri: ₼${filteredProducts.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2)}</p>
+            <p>Ümumi stok dəyəri: ₼${filteredProducts.reduce((sum, p) => sum + ((p.pricePerKg || p.price || 0) * (p.stock || 0)), 0).toFixed(2)}</p>
           </div>
         </body>
       </html>
@@ -296,6 +455,7 @@ const ProductList = () => {
     setFilterCategory('all');
     setPriceFilter('all');
     setStockFilter('all');
+    setSearchParams({}, { replace: true });
   };
 
   const clearFilters = () => {
@@ -304,11 +464,8 @@ const ProductList = () => {
     setPriceFilter('all');
     setStockFilter('all');
     setCurrentPage(1);
+    setSearchParams({}, { replace: true });
     showNotification('Filtrlər təmizləndi!', 'info');
-  };
-
-  const goToPage = (page) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
   };
 
   const getCategoryLabel = (category) => {
@@ -335,41 +492,6 @@ const ProductList = () => {
       case 'outOfStock': return 'Bitib (0)';
       default: return 'Stok';
     }
-  };
-
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPagesToShow = 5;
-    
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pageNumbers.push(i);
-        }
-        pageNumbers.push('...');
-        pageNumbers.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pageNumbers.push(1);
-        pageNumbers.push('...');
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pageNumbers.push(i);
-        }
-      } else {
-        pageNumbers.push(1);
-        pageNumbers.push('...');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pageNumbers.push(i);
-        }
-        pageNumbers.push('...');
-        pageNumbers.push(totalPages);
-      }
-    }
-    
-    return pageNumbers;
   };
 
   const getTextClass = (text) => {
@@ -432,18 +554,21 @@ const ProductList = () => {
           <FiSearch className="pl-search-icon" />
           <input
             type="text"
-            placeholder="Axtarış (məhsul adı, kod, kateqoriya, açıqlama...)"
+            placeholder="Axtarış (məhsul adı, ID, kateqoriya, açıqlama...)"
             value={searchTerm}
             onChange={handleSearch}
             className="pl-search-input"
           />
           {searchTerm && (
-            <FiX className="pl-clear-search" onClick={() => setSearchTerm('')} />
+            <FiX className="pl-clear-search" onClick={() => {
+              setSearchTerm('');
+              setCurrentPage(1);
+              updateUrlParams(filterCategory, priceFilter, stockFilter, '');
+            }} />
           )}
         </div>
 
         <div className="pl-filter-buttons">
-          {/* Kateqoriya filter */}
           <div className="pl-filter-dropdown">
             <button 
               className={`pl-filter-btn ${filterCategory !== 'all' ? 'pl-active' : ''}`}
@@ -457,27 +582,23 @@ const ProductList = () => {
               <div className="pl-dropdown-menu">
                 <div 
                   className={`pl-dropdown-item ${filterCategory === 'all' ? 'pl-selected' : ''}`}
-                  onClick={() => { setFilterCategory('all'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleFilterCategoryChange('all')}
                 >
                   Bütün kateqoriyalar
                 </div>
-                <div 
-                  className={`pl-dropdown-item ${filterCategory === 'Quru meyvələr' ? 'pl-selected' : ''}`}
-                  onClick={() => { setFilterCategory('Quru meyvələr'); setOpenDropdown(null); setCurrentPage(1); }}
-                >
-                  Quru meyvələr
-                </div>
-                <div 
-                  className={`pl-dropdown-item ${filterCategory === 'Çərəzlər' ? 'pl-selected' : ''}`}
-                  onClick={() => { setFilterCategory('Çərəzlər'); setOpenDropdown(null); setCurrentPage(1); }}
-                >
-                  Çərəzlər
-                </div>
+                {categories.map(category => (
+                  <div 
+                    key={category}
+                    className={`pl-dropdown-item ${filterCategory === category ? 'pl-selected' : ''}`}
+                    onClick={() => handleFilterCategoryChange(category)}
+                  >
+                    {category}
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Qiymət filter */}
           <div className="pl-filter-dropdown">
             <button 
               className={`pl-filter-btn ${priceFilter !== 'all' ? 'pl-active' : ''}`}
@@ -491,31 +612,31 @@ const ProductList = () => {
               <div className="pl-dropdown-menu">
                 <div 
                   className={`pl-dropdown-item ${priceFilter === 'all' ? 'pl-selected' : ''}`}
-                  onClick={() => { setPriceFilter('all'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handlePriceFilterChange('all')}
                 >
                   Bütün qiymətlər
                 </div>
                 <div 
                   className={`pl-dropdown-item ${priceFilter === 'low' ? 'pl-selected' : ''}`}
-                  onClick={() => { setPriceFilter('low'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handlePriceFilterChange('low')}
                 >
                   10 AZN -dən az
                 </div>
                 <div 
                   className={`pl-dropdown-item ${priceFilter === 'medium' ? 'pl-selected' : ''}`}
-                  onClick={() => { setPriceFilter('medium'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handlePriceFilterChange('medium')}
                 >
                   10 - 20 AZN
                 </div>
                 <div 
                   className={`pl-dropdown-item ${priceFilter === 'high' ? 'pl-selected' : ''}`}
-                  onClick={() => { setPriceFilter('high'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handlePriceFilterChange('high')}
                 >
                   20 - 30 AZN
                 </div>
                 <div 
                   className={`pl-dropdown-item ${priceFilter === 'premium' ? 'pl-selected' : ''}`}
-                  onClick={() => { setPriceFilter('premium'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handlePriceFilterChange('premium')}
                 >
                   30 AZN -dən çox
                 </div>
@@ -523,7 +644,6 @@ const ProductList = () => {
             )}
           </div>
 
-          {/* Stok filter */}
           <div className="pl-filter-dropdown">
             <button 
               className={`pl-filter-btn ${stockFilter !== 'all' ? 'pl-active' : ''}`}
@@ -537,25 +657,25 @@ const ProductList = () => {
               <div className="pl-dropdown-menu">
                 <div 
                   className={`pl-dropdown-item ${stockFilter === 'all' ? 'pl-selected' : ''}`}
-                  onClick={() => { setStockFilter('all'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleStockFilterChange('all')}
                 >
                   Bütün stoklar
                 </div>
                 <div 
                   className={`pl-dropdown-item ${stockFilter === 'inStock' ? 'pl-selected' : ''}`}
-                  onClick={() => { setStockFilter('inStock'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleStockFilterChange('inStock')}
                 >
                   Stokda (10kq+)
                 </div>
                 <div 
                   className={`pl-dropdown-item ${stockFilter === 'lowStock' ? 'pl-selected' : ''}`}
-                  onClick={() => { setStockFilter('lowStock'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleStockFilterChange('lowStock')}
                 >
                   Az qalıb (1-10kq)
                 </div>
                 <div 
                   className={`pl-dropdown-item ${stockFilter === 'outOfStock' ? 'pl-selected' : ''}`}
-                  onClick={() => { setStockFilter('outOfStock'); setOpenDropdown(null); setCurrentPage(1); }}
+                  onClick={() => handleStockFilterChange('outOfStock')}
                 >
                   Bitib (0)
                 </div>
@@ -563,7 +683,6 @@ const ProductList = () => {
             )}
           </div>
 
-          {/* Təmizlə düyməsi */}
           {(searchTerm || filterCategory !== 'all' || priceFilter !== 'all' || stockFilter !== 'all') && (
             <button className="pl-filter-btn pl-clear-all-btn" onClick={clearFilters}>
               <FiX /> Təmizlə
@@ -571,19 +690,21 @@ const ProductList = () => {
           )}
         </div>
 
-        {/* Aktiv filtrlər */}
         {(searchTerm || filterCategory !== 'all' || priceFilter !== 'all' || stockFilter !== 'all') && (
           <div className="pl-compact-active-filters">
             {searchTerm && (
               <span className="pl-compact-active-filter">
                 "{searchTerm}"
-                <FiX onClick={() => setSearchTerm('')} />
+                <FiX onClick={() => {
+                  setSearchTerm('');
+                  updateUrlParams(filterCategory, priceFilter, stockFilter, '');
+                }} />
               </span>
             )}
             {filterCategory !== 'all' && (
               <span className="pl-compact-active-filter">
                 {filterCategory}
-                <FiX onClick={() => setFilterCategory('all')} />
+                <FiX onClick={() => handleFilterCategoryChange('all')} />
               </span>
             )}
             {priceFilter !== 'all' && (
@@ -591,21 +712,20 @@ const ProductList = () => {
                 {priceFilter === 'low' ? '< 10₼' :
                  priceFilter === 'medium' ? '10-20₼' :
                  priceFilter === 'high' ? '20-30₼' : '> 30₼'}
-                <FiX onClick={() => setPriceFilter('all')} />
+                <FiX onClick={() => handlePriceFilterChange('all')} />
               </span>
             )}
             {stockFilter !== 'all' && (
               <span className="pl-compact-active-filter">
                 {stockFilter === 'inStock' ? 'Stokda' :
                  stockFilter === 'lowStock' ? 'Az qalıb' : 'Bitib'}
-                <FiX onClick={() => setStockFilter('all')} />
+                <FiX onClick={() => handleStockFilterChange('all')} />
               </span>
             )}
           </div>
         )}
       </div>
 
-      {/* Nəticə sayı */}
       <div className="pl-results-info">
         <p>Cəmi <strong>{filteredProducts.length}</strong> məhsul tapıldı</p>
         {filteredProducts.length > 0 && (
@@ -615,7 +735,6 @@ const ProductList = () => {
         )}
       </div>
 
-      {/* Məhsullar cədvəli */}
       <div className="pl-table-wrapper">
         {filteredProducts.length === 0 ? (
           <div className="pl-no-data">
@@ -629,138 +748,126 @@ const ProductList = () => {
           <table className="pl-table">
             <thead>
               <tr>
-                <th>Məhsul kodu</th>
+                <th>№</th>
                 <th>Şəkil</th>
                 <th>Məhsul adı</th>
                 <th>Kateqoriya</th>
                 <th>Açıqlama</th>
-                <th>Qiymət (kq)</th>
-                <th>Stok (kq)</th>
+                <th>Qiymət</th>
+                <th>Stok</th>
+                <th>Yerləşmə</th>
                 <th>Əməliyyatlar</th>
               </tr>
             </thead>
             <tbody>
-              {currentProducts.map((product) => (
-                <tr key={product.id}>
-                  <td className="pl-product-sku">{product.id}</td>
-                  <td className="pl-product-image-cell">
-                    <div className="pl-product-image-wrapper" onClick={() => handleImageClick(product)}>
-                      {product.image ? (
-                        <img src={product.image} alt={product.name} className="pl-product-image" />
+              {currentProducts.map((product, index) => {
+                const stockStatus = getStockStatus(product.stock);
+                const productPrice = product.pricePerKg || product.price || 0;
+                const productImage = product.img || product.image;
+                
+                return (
+                  <tr key={String(product.id)}>
+                    <td className="pl-product-id">{index + 1 + (currentPage - 1) * productsPerPage}</td>
+                    <td className="pl-product-image-cell">
+                      <div className="pl-product-image-wrapper" onClick={() => handleImageClick(product)}>
+                        {productImage ? (
+                          <img src={productImage} alt={product.name} className="pl-product-image" />
+                        ) : (
+                          <div className="pl-product-image-placeholder">
+                            <FiImage />
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className={`pl-product-name ${getTextClass(product.name)}`}>{product.name}</td>
+                    <td>
+                      <span className={`pl-product-category ${getTextClass(product.category)}`}>{product.category}</span>
+                    </td>
+                    <td className={`pl-product-description ${getTextClass(product.description || '')}`}>
+                      {product.description || '-'}
+                    </td>
+                    <td className="pl-product-price">₼{productPrice.toFixed(2)}</td>
+                    <td className="pl-product-stock">
+                      <div className={`stock-status-display ${stockStatus.class}`}>
+                        <span className="stock-icon">{stockStatus.icon}</span>
+                        <span className="stock-value">{product.stock || 0} kq</span>
+                        <span className="stock-text">{stockStatus.text}</span>
+                      </div>
+                    </td>
+                    <td className="pl-product-placement">
+                      {product.featured ? (
+                        <div className="pl-placement-badge featured">
+                          <span className="placement-icon">⭐</span>
+                          <span className="placement-text">Ana səhifə</span>
+                          {product.order !== undefined && product.order > 0 && (
+                            <span className="placement-order">#{product.order}</span>
+                          )}
+                        </div>
                       ) : (
-                        <div className="pl-product-image-placeholder">
-                          <FiImage />
+                        <div className="pl-placement-badge normal">
+                          <span className="placement-icon">📦</span>
+                          <span className="placement-text">Bütün məhsullar</span>
                         </div>
                       )}
-                    </div>
-                  </td>
-                  <td className={`pl-product-name ${getTextClass(product.name)}`}>{product.name}</td>
-                  <td>
-                    <span className={`pl-product-category ${getTextClass(product.category)}`}>{product.category}</span>
-                  </td>
-                  <td className={`pl-product-description ${getTextClass(product.description || '')}`}>
-                    {product.description || '-'}
-                  </td>
-                  <td className="pl-product-price">₼{product.price.toFixed(2)}</td>
-                  <td className="pl-product-stock">{product.stock}</td>
-                  <td>
-                    <div className="pl-action-buttons">
-                      <button 
-                        className="pl-action-btn pl-view-btn" 
-                        onClick={() => handleViewProduct(product)}
-                        title="Məhsula bax"
-                      >
-                        <FiEye />
-                      </button>
-                      <button 
-                        className="pl-action-btn pl-edit-btn" 
-                        onClick={() => handleEditProduct(product)}
-                        title="Redaktə et"
-                      >
-                        <FiEdit />
-                      </button>
-                      <button 
-                        className="pl-action-btn pl-image-btn" 
-                        onClick={() => handleImageClick(product)}
-                        title="Şəkilə bax"
-                      >
-                        <FiImage />
-                      </button>
-                      <button 
-                        className="pl-action-btn pl-delete-btn" 
-                        onClick={() => handleDeleteClick(product.id)}
-                        title="Sil"
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td>
+                      <div className="pl-action-buttons">
+                        <button 
+                          className="pl-action-btn pl-view-btn" 
+                          onClick={() => handleViewProduct(product)}
+                          title="Məhsula bax"
+                        >
+                          <FiEye />
+                        </button>
+                        <button 
+                          className="pl-action-btn pl-edit-btn" 
+                          onClick={() => handleEditProduct(product)}
+                          title="Redaktə et"
+                        >
+                          <FiEdit />
+                        </button>
+                        <button 
+                          className="pl-action-btn pl-image-btn" 
+                          onClick={() => handleImageClick(product)}
+                          title="Şəkilə bax"
+                        >
+                          <FiImage />
+                        </button>
+                        <button 
+                          className="pl-action-btn pl-stock-btn" 
+                          onClick={() => setStockModal({ show: true, product })}
+                          title="Stok idarəsi"
+                        >
+                          <FiPackage />
+                        </button>
+                        <button 
+                          className="pl-action-btn pl-delete-btn" 
+                          onClick={() => handleDeleteClick(product.id)}
+                          title="Sil"
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
       </div>
 
-      {/* Səhifələmə */}
+      {/* Vahid Pagination Komponenti */}
       {totalPages > 1 && (
-        <div className="pl-pagination">
-          <button 
-            onClick={() => goToPage(1)} 
-            disabled={currentPage === 1}
-            className="pl-pagination-btn pl-first-page"
-            title="İlk səhifə"
-          >
-            <FiChevronsLeft />
-            <span className="pl-btn-text">İlk</span>
-          </button>
-          <button 
-            onClick={() => goToPage(currentPage - 1)} 
-            disabled={currentPage === 1}
-            className="pl-pagination-btn pl-prev-page"
-            title="Əvvəlki səhifə"
-          >
-            <FiChevronLeft />
-            <span className="pl-btn-text">Əvvəl</span>
-          </button>
-          
-          {getPageNumbers().map((page, index) => (
-            page === '...' ? (
-              <span key={`dots-${index}`} className="pl-pagination-dots">...</span>
-            ) : (
-              <button
-                key={page}
-                onClick={() => goToPage(page)}
-                className={`pl-pagination-btn pl-page-number ${currentPage === page ? 'pl-active' : ''}`}
-              >
-                {page}
-              </button>
-            )
-          ))}
-          
-          <button 
-            onClick={() => goToPage(currentPage + 1)} 
-            disabled={currentPage === totalPages}
-            className="pl-pagination-btn pl-next-page"
-            title="Sonrakı səhifə"
-          >
-            <span className="pl-btn-text">Sonra</span>
-            <FiChevronRight />
-          </button>
-          <button 
-            onClick={() => goToPage(totalPages)} 
-            disabled={currentPage === totalPages}
-            className="pl-pagination-btn pl-last-page"
-            title="Son səhifə"
-          >
-            <span className="pl-btn-text">Son</span>
-            <FiChevronsRight />
-          </button>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          pageParamName="page"
+          scrollToTop={true}
+        />
       )}
 
-      {/* ========== MODALLAR (eyni qalır, yalnız classlara pl- prefiksi əlavə edildi) ========== */}
-      
       {/* Baxış modali */}
       {viewModal.show && (
         <div className="pl-modal-overlay" onClick={closeViewModal}>
@@ -773,8 +880,8 @@ const ProductList = () => {
             </div>
             <div className="pl-modal-body">
               <div className="pl-product-detail-image">
-                {viewModal.product.image ? (
-                  <img src={viewModal.product.image} alt={viewModal.product.name} />
+                {(viewModal.product.img || viewModal.product.image) ? (
+                  <img src={viewModal.product.img || viewModal.product.image} alt={viewModal.product.name} />
                 ) : (
                   <div className="pl-product-image-placeholder pl-large">
                     <FiImage />
@@ -782,8 +889,8 @@ const ProductList = () => {
                 )}
               </div>
               <div className="pl-detail-row">
-                <span className="pl-detail-label">Məhsul kodu:</span>
-                <span className="pl-detail-value">{viewModal.product.id}</span>
+                <span className="pl-detail-label">ID:</span>
+                <span className="pl-detail-value">{String(viewModal.product.id)}</span>
               </div>
               <div className="pl-detail-row">
                 <span className="pl-detail-label">Məhsul adı:</span>
@@ -799,11 +906,29 @@ const ProductList = () => {
               </div>
               <div className="pl-detail-row">
                 <span className="pl-detail-label">Qiymət:</span>
-                <span className="pl-detail-value pl-amount">₼{viewModal.product.price.toFixed(2)} / kq</span>
+                <span className="pl-detail-value pl-amount">
+                  ₼{(viewModal.product.pricePerKg || viewModal.product.price || 0).toFixed(2)} / kq
+                </span>
               </div>
               <div className="pl-detail-row">
                 <span className="pl-detail-label">Stok miqdarı:</span>
-                <span className="pl-detail-value">{viewModal.product.stock} kq</span>
+                <span className="pl-detail-value">{viewModal.product.stock || 0} kq</span>
+              </div>
+              <div className="pl-detail-row">
+                <span className="pl-detail-label">Yerləşmə:</span>
+                <span className="pl-detail-value">
+                  {viewModal.product.featured ? (
+                    <div className="pl-placement-badge featured small">
+                      <span className="placement-icon">⭐</span>
+                      <span className="placement-text">Ana səhifə (Sıra: {viewModal.product.order || '-'})</span>
+                    </div>
+                  ) : (
+                    <div className="pl-placement-badge normal small">
+                      <span className="placement-icon">📦</span>
+                      <span className="placement-text">Bütün məhsullar</span>
+                    </div>
+                  )}
+                </span>
               </div>
             </div>
             <div className="pl-modal-footer">
@@ -825,14 +950,16 @@ const ProductList = () => {
             </div>
             <div className="pl-modal-body">
               <div className="pl-form-group">
-                <label>Məhsul kodu</label>
+                <label>ID (String)</label>
                 <input
                   type="text"
-                  value={editModal.product.id}
+                  value={String(editModal.product.id)}
                   onChange={(e) => handleEditChange('id', e.target.value)}
                   className="pl-modal-input"
-                  placeholder="Məhsul kodu"
+                  placeholder="ID"
+                  disabled
                 />
+                <small className="pl-field-hint">ID avtomatik yaradılır və dəyişdirilə bilməz</small>
               </div>
 
               <div className="pl-form-group">
@@ -848,15 +975,32 @@ const ProductList = () => {
 
               <div className="pl-form-group">
                 <label>Kateqoriya</label>
-                <select
-                  value={editModal.product.category}
-                  onChange={(e) => handleEditChange('category', e.target.value)}
-                  className="pl-modal-input"
-                >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+                <div className="custom-category-dropdown" ref={categoryDropdownRef}>
+                  <div 
+                    className={`dropdown-trigger ${isCategoryDropdownOpen ? 'open' : ''}`}
+                    onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                  >
+                    <span>{editModal.product.category}</span>
+                    <FiChevronDown className={`dropdown-arrow ${isCategoryDropdownOpen ? 'rotate' : ''}`} />
+                  </div>
+                  {isCategoryDropdownOpen && (
+                    <div className="dropdown-menu">
+                      {categories.map(cat => (
+                        <div
+                          key={cat}
+                          className={`dropdown-item ${editModal.product.category === cat ? 'selected' : ''}`}
+                          onClick={() => {
+                            handleEditChange('category', cat);
+                            setIsCategoryDropdownOpen(false);
+                          }}
+                        >
+                          {cat}
+                          {editModal.product.category === cat && <span className="check-icon">✓</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="pl-form-group">
@@ -875,8 +1019,8 @@ const ProductList = () => {
                   <label>Qiymət (AZN/kq)</label>
                   <input
                     type="number"
-                    value={editModal.product.price}
-                    onChange={(e) => handleEditChange('price', e.target.value)}
+                    value={editModal.product.pricePerKg || editModal.product.price || 0}
+                    onChange={(e) => handleEditChange('pricePerKg', e.target.value)}
                     className="pl-modal-input"
                     step="0.01"
                     min="0"
@@ -888,7 +1032,7 @@ const ProductList = () => {
                   <label>Stok miqdarı (kq)</label>
                   <input
                     type="number"
-                    value={editModal.product.stock}
+                    value={editModal.product.stock || 0}
                     onChange={(e) => handleEditChange('stock', e.target.value)}
                     className="pl-modal-input"
                     step="0.1"
@@ -896,6 +1040,32 @@ const ProductList = () => {
                     placeholder="0"
                   />
                 </div>
+              </div>
+
+              <div className="pl-form-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={editModal.product.featured || false}
+                    onChange={(e) => handleEditChange('featured', e.target.checked)}
+                  />
+                  <span className="custom-checkbox"></span>
+                  <span className="checkbox-text">⭐ Ana səhifədə göstər</span>
+                </label>
+                <small className="pl-field-hint">İşarələsəniz, məhsul ana səhifədə görünəcək</small>
+              </div>
+
+              <div className="pl-form-group">
+                <label>Sıra nömrəsi</label>
+                <input
+                  type="number"
+                  value={editModal.product.order || 0}
+                  onChange={(e) => handleEditChange('order', parseInt(e.target.value) || 0)}
+                  className="pl-modal-input"
+                  min="0"
+                  placeholder="Sıra nömrəsi (kiçik rəqəm öndə)"
+                />
+                <small className="pl-field-hint">Ana səhifədə sıralama üçün (1, 2, 3...)</small>
               </div>
 
               <div className="pl-form-group">
@@ -919,16 +1089,16 @@ const ProductList = () => {
                     </button>
                   </div>
 
-                  {editModal.product.image && (
+                  {(editModal.product.img || editModal.product.image) && (
                     <div className="pl-image-preview">
                       <img 
-                        src={editModal.product.image} 
+                        src={editModal.product.img || editModal.product.image} 
                         alt="Preview" 
                         className="pl-preview-image"
                       />
                       <button 
                         className="pl-remove-image-btn"
-                        onClick={() => handleEditChange('image', null)}
+                        onClick={() => handleEditChange('img', null)}
                         title="Şəkili sil"
                       >
                         <FiX />
@@ -959,9 +1129,9 @@ const ProductList = () => {
               </button>
             </div>
             <div className="pl-modal-body pl-image-modal-body">
-              {imageModal.product.image ? (
+              {(imageModal.product.img || imageModal.product.image) ? (
                 <img 
-                  src={imageModal.product.image} 
+                  src={imageModal.product.img || imageModal.product.image} 
                   alt={imageModal.product.name}
                   className="pl-full-image"
                 />
@@ -992,7 +1162,7 @@ const ProductList = () => {
             <div className="pl-modal-body">
               <FiAlertCircle size={48} className="pl-delete-icon" />
               <p className="pl-delete-warning">
-                Məhsul kodu: <strong>{deleteModal.productId}</strong>
+                ID: <strong>{String(deleteModal.productId)}</strong>
               </p>
               <p className="pl-delete-warning">
                 Bu məhsulu silmək istədiyinizə əminsiniz?
@@ -1007,6 +1177,16 @@ const ProductList = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Stok İdarəsi Modali */}
+      {stockModal.show && (
+        <StockManagement
+          product={stockModal.product}
+          onClose={() => setStockModal({ show: false, product: null })}
+          onUpdateStock={handleUpdateStock}
+          stockMovements={stockMovements}
+        />
       )}
     </div>
   );

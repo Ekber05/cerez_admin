@@ -1,8 +1,12 @@
-import React, { useState, useRef } from 'react';
+// ProductUpload.jsx - TAM DÜZƏLDİLMİŞ (təhlükəsizlik əlavəsi)
+
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useProducts } from '../../../contexts/ProductContext';
 import './ProductUpload.css';
 
 const ProductUpload = () => {
+  const navigate = useNavigate();
   const { addProduct, products } = useProducts();
 
   // BİLDİRİŞ STATE
@@ -13,18 +17,40 @@ const ProductUpload = () => {
     price: '',
     stock: '',
     description: '',
-    category: 'Çərəzlər'
+    category: 'Meyvə quruları',
+    placement: 'all'
   });
 
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const [dragActive, setDragActive] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const fileInputRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
   
-  // File seçimi zamanı onClick-in işləməsinin qarşısını almaq üçün flag
   const isFileDialogOpen = useRef(false);
 
-  // BİLDİRİŞ GÖSTƏR
+  const categories = [
+    'Meyvə quruları',
+    'Duzlu çərəzlər',
+    'Şokoladlı çərəzlər',
+    'Ədviyyatlar',
+    'Paxlalılar və Taxıllar',
+    'Bitki Yağları',
+    'Qurudulmuş Otlar və Çaylar',
+    'Hədiyyə paketləri'
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
+        setIsCategoryOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
     setTimeout(() => {
@@ -38,6 +64,21 @@ const ProductUpload = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handlePlacementChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      placement: value
+    }));
+  };
+
+  const handleCategorySelect = (category) => {
+    setFormData(prev => ({
+      ...prev,
+      category: category
+    }));
+    setIsCategoryOpen(false);
   };
 
   const handleFiles = (files) => {
@@ -69,14 +110,12 @@ const ProductUpload = () => {
   };
 
   const handleFileChange = (e) => {
-    // File seçildi, flag-ı bağla
     isFileDialogOpen.current = false;
     
     if (e.target.files && e.target.files.length > 0) {
       handleFiles(e.target.files);
     }
     
-    // Input-un value-sunu təmizlə ki, eyni faylı təkrar seçmək mümkün olsun
     e.target.value = '';
   };
 
@@ -108,10 +147,23 @@ const ProductUpload = () => {
 
   const generateProductId = () => {
     const lastId = products.length > 0 
-      ? Math.max(...products.map(p => parseInt(p.id.replace('QM-', ''))))
+      ? Math.max(...products.map(p => {
+          const idNum = parseInt(String(p.id).replace('QM-', ''));
+          return isNaN(idNum) ? 0 : idNum;
+        }))
       : 0;
     const newId = lastId + 1;
     return `QM-${String(newId).padStart(3, '0')}`;
+  };
+
+  // Məhsulu normallaşdıran funksiya (təhlükəsizlik üçün)
+  const normalizeProduct = (product) => {
+    return {
+      ...product,
+      pricePerKg: product.pricePerKg || product.price || 0,
+      img: product.img || product.image || null,
+      stock: product.stock || 0
+    };
   };
 
   const handleSubmit = (e) => {
@@ -127,20 +179,36 @@ const ProductUpload = () => {
       return;
     }
 
+    const isFeatured = formData.placement === 'featured';
+    
+    let order = 0;
+    if (isFeatured) {
+      const featuredProducts = products.filter(p => p.featured === true);
+      order = featuredProducts.length + 1;
+    }
+
     const newProduct = {
       id: generateProductId(),
       name: formData.name,
       category: formData.category,
-      price: parseFloat(formData.price),
+      pricePerKg: parseFloat(formData.price),
       stock: parseInt(formData.stock),
       description: formData.description || '',
-      image: selectedFiles.length > 0 ? previewUrls[0] : null,
-      unit: 'kq'
+      img: selectedFiles.length > 0 ? previewUrls[0] : null,
+      unit: 'kq',
+      featured: isFeatured,
+      order: order,
+      createdAt: new Date().toISOString()
     };
 
-    addProduct(newProduct);
+    // Təhlükəsizlik üçün normallaşdıraraq əlavə et
+    addProduct(normalizeProduct(newProduct));
     handleCancel();
     showToast('Məhsul əlavə edildi', 'success');
+    
+    setTimeout(() => {
+      navigate('/products');
+    }, 1000);
   };
 
   const handleCancel = () => {
@@ -149,39 +217,36 @@ const ProductUpload = () => {
       price: '',
       stock: '',
       description: '',
-      category: 'Çərəzlər'
+      category: 'Meyvə quruları',
+      placement: 'all'
     });
     
     previewUrls.forEach(url => URL.revokeObjectURL(url));
     setSelectedFiles([]);
     setPreviewUrls([]);
+    
+    navigate(-1);
   };
 
   const openFileDialog = (e) => {
-    // Əgər flag açıqdırsa, onClick işləməsin
     if (isFileDialogOpen.current) {
       e.preventDefault();
       e.stopPropagation();
       return;
     }
     
-    // Flag-ı aç
     isFileDialogOpen.current = true;
-    
-    // File input-u aç
     fileInputRef.current.click();
   };
 
-  // File input-a click üçün ayrıca handler
   const handleInputClick = (e) => {
-    e.stopPropagation(); // Event-in yuxarıya yayılmasının qarşısını al
+    e.stopPropagation();
   };
 
   return (
     <div className="productupload-wrapper">
       <div className="productupload-container">
         
-        {/* SADƏ AĞ BİLDİRİŞ PƏNCƏRƏSİ */}
         {toast.show && (
           <div className={`simple-notification ${toast.type}`}>
             <div className="notification-content">
@@ -204,7 +269,6 @@ const ProductUpload = () => {
             <span className="productupload-badge">Maksimum 5 şəkil</span>
           </div>
           
-          {/* Şəkil yükləmə sahəsi */}
           <div 
             className={`productupload-area ${dragActive ? 'drag-active' : ''} ${selectedFiles.length > 0 ? 'has-images' : ''}`}
             onDragEnter={handleDrag}
@@ -282,22 +346,86 @@ const ProductUpload = () => {
             <div className="productupload-form-row">
               <div className="productupload-form-group">
                 <label>Kateqoriya <span className="required">*</span></label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="productupload-select"
-                  required
+                
+                <div className="custom-dropdown" ref={categoryDropdownRef}>
+                  <div 
+                    className={`custom-dropdown-trigger ${isCategoryOpen ? 'open' : ''}`}
+                    onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                  >
+                    <span className="dropdown-selected">
+                      <span className="category-name">{formData.category}</span>
+                    </span>
+                    <svg 
+                      className={`dropdown-arrow ${isCategoryOpen ? 'rotate' : ''}`}
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 24 24" 
+                      fill="none"
+                    >
+                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                  
+                  {isCategoryOpen && (
+                    <div className="custom-dropdown-menu">
+                      {categories.map(category => (
+                        <div
+                          key={category}
+                          className={`custom-dropdown-item ${formData.category === category ? 'selected' : ''}`}
+                          onClick={() => handleCategorySelect(category)}
+                        >
+                          <span className="category-name">{category}</span>
+                          {formData.category === category && (
+                            <span className="check-icon">✓</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="productupload-placement-section">
+              <label className="placement-section-title">Yerləşmə vəziyyəti</label>
+              <div className="placement-options">
+                <div 
+                  className={`placement-option ${formData.placement === 'featured' ? 'active' : ''}`}
+                  onClick={() => handlePlacementChange('featured')}
                 >
-                  <option value="Çərəzlər">Çərəzlər</option>
-                  <option value="Quru meyvələr">Quru meyvələr</option>
-                </select>
+                  <div className="placement-option-icon">⭐</div>
+                  <div className="placement-option-content">
+                    <h4>Ana səhifədə göstər</h4>
+                    <p>Məhsul ana səhifədə xüsusi bölmədə göstəriləcək</p>
+                  </div>
+                  <div className="placement-option-radio">
+                    <div className={`radio-circle ${formData.placement === 'featured' ? 'checked' : ''}`}>
+                      {formData.placement === 'featured' && <div className="radio-dot"></div>}
+                    </div>
+                  </div>
+                </div>
+                
+                <div 
+                  className={`placement-option ${formData.placement === 'all' ? 'active' : ''}`}
+                  onClick={() => handlePlacementChange('all')}
+                >
+                  <div className="placement-option-icon">📦</div>
+                  <div className="placement-option-content">
+                    <h4>Bütün məhsullara əlavə et</h4>
+                    <p>Məhsul yalnız bütün məhsullar səhifəsində göstəriləcək</p>
+                  </div>
+                  <div className="placement-option-radio">
+                    <div className={`radio-circle ${formData.placement === 'all' ? 'checked' : ''}`}>
+                      {formData.placement === 'all' && <div className="radio-dot"></div>}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div className="productupload-form-row">
               <div className="productupload-form-group">
-                <label>Qiymət (₼) <span className="required">*</span></label>
+                <label>Qiymət (₼/kq) <span className="required">*</span></label>
                 <input
                   type="number"
                   name="price"

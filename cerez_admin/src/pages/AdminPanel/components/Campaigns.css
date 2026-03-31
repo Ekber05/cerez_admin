@@ -190,6 +190,26 @@ input, textarea, select, button {
   gap: 8px;
 }
 
+/* ========== RESULTS INFO - CAMPAIGNS ========== */
+.campaigns-results-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.campaigns-results-info strong {
+  color: #667eea;
+  font-size: 16px;
+}
+
+.campaigns-results-detail {
+  color: #6c757d;
+  font-size: 13px;
+}
+
 /* ========== NO RESULTS ========== */
 .no-results {
   text-align: center;
@@ -241,6 +261,7 @@ input, textarea, select, button {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 25px;
+  margin-bottom: 30px;
 }
 
 .campaign-card {
@@ -1397,6 +1418,14 @@ input, textarea, select, button {
   .confirm-delete-btn {
     width: 100%;
   }
+
+  /* Results Info responsive */
+  .campaigns-results-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    margin-bottom: 15px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1584,7 +1613,8 @@ input, textarea, select, button {
   .create-button,
   .filters-section,
   .campaign-actions,
-  .modal-overlay {
+  .modal-overlay,
+  .campaigns-results-info {
     display: none !important;
   }
 

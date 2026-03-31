@@ -7,11 +7,12 @@ import ProductList from './components/ProductList';
 import ProductUpload from './components/ProductUpload';
 import Dashboard from './components/Dashboard';
 import MessageSection from './components/MessageSection/MessageSection';
+import Users from './components/Users';
 import { useOrders } from '../../hooks/useOrders';
 import { useNotifications } from '../../contexts/NotificationContext';
 import NotificationsPage from './components/notifications/NotificationsPage';
 import Campaigns from './components/Campaigns';
-import Blog from './components/Blog'; // Blog komponentini import et
+import Blog from './components/Blog';
 import { 
   FiSearch, FiBell, FiMail, FiUser, FiMenu, 
   FiHome, FiUsers, FiShoppingBag, FiFileText, 
@@ -20,8 +21,6 @@ import {
   FiShoppingCart as FiCartIcon, FiXCircle, FiChevronDown,
   FiList, FiUpload, FiBarChart2, FiTrendingUp, FiEdit
 } from 'react-icons/fi';
-
-// Placeholder komponenti silindi - artıq real Blog komponentimiz var
 
 const AdminPanel = ({ onMenuClick }) => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -341,10 +340,12 @@ const AdminPanel = ({ onMenuClick }) => {
     }
   };
 
-  // Blog səhifəsi üçün render - artıq real Blog komponenti göstərilir
   const renderContent = () => {
     if (activePage === 'blog') {
-      return <Blog />; // Placeholder əvəzinə real Blog komponenti
+      return <Blog />;
+    }
+    if (activePage === 'users') {
+      return <Users />;
     }
     return <Outlet />;
   };
@@ -556,6 +557,13 @@ const AdminPanel = ({ onMenuClick }) => {
                   >
                     <FiTrendingUp /> Kampaniyalar
                   </button>
+                  <button 
+                    type="button" 
+                    className={`dropdown-item ${activePage === 'users' ? 'active-profile-item' : ''}`}
+                    onClick={() => handlePageChange('users')}
+                  >
+                    <FiUsers /> İstifadəçilər
+                  </button>
                 </div>
                 <div className="dropdown-footer">
                   <button type="button" className="logout-btn" onClick={handleLogout}>
@@ -607,7 +615,7 @@ const AdminPanel = ({ onMenuClick }) => {
                 className={`sidebar-link ${activePage === 'users' ? 'active' : ''}`}
                 onClick={() => handlePageChange('users')}
               >
-                <FiUsers /> Users
+                <FiUsers /> İstifadəçilər
               </button>
             </li>
             <li className="sidebar-dropdown-container" ref={productsDropdownRef}>

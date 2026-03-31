@@ -1,3 +1,5 @@
+/* src/components/AdminPanel/components/AllOrders.css - TAM VERSİYA (pagination hissəsi silindi) */
+
 /* ===== ALL ORDERS CONTAINER ===== */
 .ao-container {
   width: 100%;
@@ -173,11 +175,12 @@
   padding: 0 45px;
   border: 1px solid #e9ecef;
   border-radius: 30px;
-  font-size: 14px;
+  font-size: 16px;
   outline: none;
   transition: all 0.3s ease;
   background: white;
   line-height: 44px;
+  color: #333;
 }
 
 .ao-search-input:focus {
@@ -227,7 +230,7 @@
   background: white;
   border: 1px solid #e9ecef;
   border-radius: 30px;
-  font-size: 13px;
+  font-size: 14px;
   color: #495057;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -406,6 +409,9 @@
 
 /* ===== Nəticə sayı ===== */
 .ao-results-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 15px;
   font-size: 14px;
   color: #6c757d;
@@ -414,6 +420,11 @@
 .ao-results-info strong {
   color: #667eea;
   font-size: 16px;
+}
+
+.ao-results-detail {
+  color: #6c757d;
+  font-size: 13px;
 }
 
 /* Clear filters button in no-data */
@@ -600,94 +611,6 @@
   font-size: 16px;
   background: #f8f9fa;
   border-radius: 16px;
-}
-
-/* ===== PAGINATION ===== */
-.ao-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 30px;
-  flex-wrap: wrap;
-}
-
-.ao-pagination-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 10px;
-  border: 1px solid #e9ecef;
-  background: white;
-  border-radius: 30px;
-  color: #495057;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.ao-pagination-btn:hover:not(:disabled) {
-  background: #667eea;
-  border-color: #667eea;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-}
-
-.ao-pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: #f8f9fa;
-  border-color: #e9ecef;
-  color: #adb5bd;
-}
-
-.ao-pagination-btn.ao-active {
-  background: #667eea;
-  border-color: #667eea;
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-}
-
-.ao-first-page,
-.ao-last-page {
-  padding: 0 15px;
-}
-
-.ao-prev-page,
-.ao-next-page {
-  padding: 0 15px;
-}
-
-.ao-pagination-btn svg {
-  font-size: 16px;
-}
-
-.ao-btn-text {
-  display: inline-block;
-}
-
-.ao-page-number {
-  min-width: 40px;
-  padding: 0;
-  font-weight: 500;
-}
-
-.ao-pagination-dots {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 30px;
-  height: 40px;
-  color: #6c757d;
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: 2px;
 }
 
 /* ===== MODAL STYLES ===== */
@@ -882,7 +805,7 @@
   padding: 12px 16px;
   border: 1px solid #e9ecef;
   border-radius: 30px;
-  font-size: 14px;
+  font-size: 16px;
   outline: none;
   transition: all 0.3s ease;
   background: white;
@@ -980,6 +903,17 @@
   background: #a8a8a8;
 }
 
+/* ===== MOBILE ZOOM FIX - Input font-size 16px ===== */
+@media (max-width: 768px) {
+  .ao-search-input,
+  .ao-modal-input,
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
   .ao-stats-cards {
@@ -1060,38 +994,6 @@
     width: 100%;
     margin-bottom: 5px;
   }
-
-  /* Pagination responsive */
-  .ao-pagination {
-    gap: 4px;
-  }
-  
-  .ao-pagination-btn {
-    min-width: 36px;
-    height: 36px;
-    font-size: 13px;
-  }
-  
-  .ao-btn-text {
-    display: none;
-  }
-  
-  .ao-first-page,
-  .ao-last-page,
-  .ao-prev-page,
-  .ao-next-page {
-    padding: 0 8px;
-  }
-  
-  .ao-page-number {
-    min-width: 36px;
-  }
-  
-  .ao-pagination-dots {
-    min-width: 25px;
-    height: 36px;
-    font-size: 14px;
-  }
 }
 
 @media (max-width: 576px) {
@@ -1116,12 +1018,12 @@
   }
   
   .ao-search-input {
-    font-size: 13px;
+    font-size: 16px;
     height: 42px;
   }
   
   .ao-filter-btn {
-    font-size: 12px;
+    font-size: 13px;
     padding: 8px 12px;
   }
   
@@ -1129,45 +1031,15 @@
     font-size: 11px;
     padding: 3px 10px;
   }
-
-  /* Pagination responsive */
-  .ao-pagination-btn {
-    min-width: 34px;
-    height: 34px;
-    font-size: 12px;
-  }
   
-  .ao-page-number {
-    min-width: 34px;
-  }
-  
-  .ao-pagination-dots {
-    min-width: 20px;
-    height: 34px;
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .ao-pagination {
-    gap: 3px;
-  }
-  
-  .ao-pagination-btn {
-    min-width: 32px;
+  .ao-action-buttons .ao-action-btn {
+    width: 32px;
     height: 32px;
-    font-size: 12px;
-    padding: 0 5px;
+    padding: 6px;
   }
   
-  .ao-page-number {
-    min-width: 32px;
-  }
-  
-  .ao-pagination-dots {
-    min-width: 18px;
-    height: 32px;
-    font-size: 12px;
+  .ao-action-buttons .ao-action-btn svg {
+    font-size: 14px;
   }
 }
 
@@ -1176,7 +1048,6 @@
   .ao-compact-filters,
   .ao-header-actions,
   .ao-action-buttons,
-  .ao-pagination,
   .ao-modal-overlay,
   .ao-results-info,
   .ao-stats-cards {
